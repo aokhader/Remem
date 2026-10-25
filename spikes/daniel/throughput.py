@@ -40,10 +40,12 @@ def main() -> None:
         outcomes.extend(index.add(records))
     elapsed = perf_counter() - began
     embedded = sum(row.status == "embedded" for row in outcomes)
+    duplicates = sum(row.status == "dup" for row in outcomes)
+    failed = sum(row.status == "failed" for row in outcomes)
     print(json.dumps({
         "fixture": f"{len(photos)} supplied photos repeated {args.repeats} times; not new observations",
-        "frames": len(data), "embedded": embedded, "failed": len(data) - embedded,
-        "elapsed_s": elapsed, "embedded_fps": embedded / elapsed,
+        "frames": len(data), "embedded": embedded, "dup": duplicates, "failed": failed,
+        "elapsed_s": elapsed, "embedded_fps": embedded / elapsed, "processed_fps": len(data) / elapsed,
         "includes": "frame saves, image decoding, batched encoding, SQLite and matrix updates; excludes model load",
         "stats": index.stats().model_dump(),
     }, indent=2), flush=True)
