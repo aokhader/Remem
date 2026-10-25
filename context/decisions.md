@@ -73,6 +73,10 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | 15:47 | Fixture values not given in contracts.md were filled in: recall Moment 14:47:00–14:49:30 PDT, `frame_ids` 1172/1222/1272/1322, `peak_z` 5.0; error fixture reuses the none fixture's passport question | Illustrative only, consistent with the act fixture's 2:41 PM clock | Aziz |
 | 16:02 | Demo laptop runs uvicorn + cloudflared in WSL but from the Windows checkout: `cd /mnt/d/Documents/GitHub/Remem && REMEM_DATA_DIR=$HOME/remem-data/live ~/.venvs/remem/bin/uvicorn remem.app:app --host 127.0.0.1 --port 8000 --workers 1`; venv + HF cache in `~`; cloudflared binary in `~/.local/bin` (no sudo) | One checkout for editing; Linux CUDA wheels + ffmpeg already in WSL; DATA_DIR must be on the Linux side (SQLite WAL is unreliable on `/mnt/d`) | Aziz |
 | 16:02 | Camera frames are portrait 640×853 (3:4), ~65 KB | Phone held upright on the forehead; 640 px is the width as specified. Daniel: no resize assumptions | Aziz |
+| 16:16 | R5 decodes with the ffmpeg CLI over a pipe (`fps=1,scale=640:-2`, MJPEG `-q:v 4`) instead of torchcodec | torch/torchcodec aren't in the WSL venv and capture shouldn't need them; ffmpeg applies the iPhone rotation flag; same pattern as Varick's R10 (P20, no new dep) | Aziz |
+| 16:16 | Replay reads videos from `DATA_DIR.parent/videos` (`data/videos/`, or `~/remem-data/videos/` in WSL); `start_clock` is taken as today in `TZ`; `POST /replay` answers `400` for a bad video name/clock/speed (contract `409` while one runs) | Matches data.md's layout in both setups; hack day = one day; bad requests shouldn't create failed jobs | Aziz |
+| 16:16 | After a replay finishes, `/status` mode reads `stalled` (lag = now − the recording's ts) | Formula unchanged; replay DATA_DIRs are never the live demo's | Aziz |
+| 16:16 | Dashboard already renders the latest answer with Varick's `card.js` (not `<pre>` JSON) | card.js landed on main; 4 lines | Aziz |
 
 ## Log — Daniel
 

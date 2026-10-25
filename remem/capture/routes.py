@@ -47,7 +47,12 @@ def get_status() -> StatusSnapshot:
 @router.post("/replay", status_code=202)
 def post_replay(video: Annotated[str, Body()], start_clock: Annotated[str, Body()],
                 speed: Annotated[float, Body()] = 0) -> ReplayJob:
-    return replay.start(video, start_clock, speed)
+    try:
+        return replay.start(video, start_clock, speed)
+    except ValueError as e:
+        raise HTTPException(400, str(e)) from None
+    except RuntimeError as e:
+        raise HTTPException(409, str(e)) from None
 
 
 @router.get("/replay")

@@ -48,14 +48,14 @@
 | R2 | Save JPEG to disk + SQLite row | Aziz | Must | done | 16:02 tunnel frames in `~/remem-data/spike`; restart keeps ids |
 | R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | todo | |
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
-| R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | stub | 15:47 `POST /replay` → failed "not implemented" |
+| R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | done | 16:16 ffmpeg pipe, blocking put: synthetic 20 s rotated 1080p video → 20/20 frames, 0 dropped (queue max 2), ts 1 s apart from `start_clock`, 640×1138 portrait; 400 bad input, 409 while running. Real `day.mp4` not run yet |
 | R6 | Ask page + object regex | Varick | Must | wip | 15:41 built; 61 extract tests pass; checked in browser on stub index. Not yet on the iPhone over the tunnel |
 | R7 | Query embed, robust z, visits, bands | Daniel | Must | todo | |
 | R8 | Gemma 4 E4B double-check + spot line | Varick | Could | stub | 15:41 adapter + `none` backend only; real backends only after rows 1–4 pass twice |
 | R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | wip | 15:41 `/ask` → act/ask/none/error correct on stub index; card.js ready for the dashboard |
 | R10 | Push-to-talk, local speech model | Varick | Should | wip | 15:50 hold-to-talk + `POST /ask/voice` built; tested with whisper-tiny on Mac CPU (~0.3 s/clip). Not yet on an iPhone or with whisper-small on the GPU |
 | R11 | Sighting timeline | Varick | Should | wip | 15:41 in card.js ("Show older sightings"); needs real multi-visit hits to verify |
-| R12 | Projector dashboard | Aziz | Should | stub | counter needed for row 1; 15:47 placeholder page, `/status` real |
+| R12 | Projector dashboard | Aziz | Should | wip | 16:16 counter + indexed, LIVE/STALLED/REPLAYING word + lag, last frame, queue/dropped/embed p50, replay progress bar, latest answer card (card.js); checked in browser during a replay. Not yet on the projector at 1080p |
 | R13 | Moment recall | Daniel | Could | todo | cut if gate 2 fails |
 | R14 | Read answer aloud | Varick | Could | todo | |
 | R15 | Blur faces before save | Aziz | Could | todo | |
@@ -83,9 +83,9 @@
 
 ## Aziz — capture, transport, ingest
 
-- **Now:** 16:02 R1 + R2 done: camera iPhone streams over the tunnel into the WSL server (`aziz/capture`)
-- **Next:** record the day + `ground_truth.csv` (S1, late) → queue + R5 replay + dashboard counter
-- **Blocked:** LICENSE has to be added on github.com (Apache-2.0 template), not typed
+- **Now:** 16:16 R5 replay done + row-1 dashboard (`aziz/capture`). Day recorded, no paper log: moving the MOV onto the laptop
+- **Next:** strip audio → `~/remem-data/videos/day.mp4`; start clock from the MOV metadata; draft `ground_truth.csv` from timestamped contact sheets, Aziz confirms spots (S1, late) → replay the day into `replay-day1` for gate 2
+- **Blocked:** recording not on the laptop yet. LICENSE has to be added on github.com (Apache-2.0 template), not typed
 
 ## Daniel — index and retrieval
 

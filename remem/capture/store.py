@@ -35,8 +35,9 @@ def frame_path(frame_id: int) -> str:
     return f"frames/{frame_id:06d}.jpg"
 
 
-def save(frame: Frame) -> FrameRecord:
-    conn, ts = _conn(), time.time()  # ts = server receive time (P10)
+def save(frame: Frame, ts: float | None = None) -> FrameRecord:
+    conn = _conn()
+    ts = time.time() if ts is None else ts  # live: server receive time; replay: start_clock + offset (P10)
     with conn:  # one transaction: a failed JPEG write leaves no row
         fid = conn.execute("INSERT INTO frames (ts, client_ts, path, source) VALUES (?, ?, '', ?)",
                            (ts, frame.client_ts, frame.source)).lastrowid
