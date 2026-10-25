@@ -77,6 +77,10 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | Time | Decision | Why | Who |
 |---|---|---|---|
 | 15:38 | Run Gate 1 spike in isolated Windows venv reusing CUDA torch; retain 280 image tokens and `a photo of {X}` + SearchQuery | User approved spike dependencies; neither WSL distribution has model packages. GPU bf16 works; median 123.50 ms, keys #1. All six A/B variants tie on ranking; defer query changes until larger evaluation. Re-normalize vectors in float32 after bf16 rounding. | Daniel |
+| 16:01 | P4: follow revised spec: merge every z-qualified candidate before retaining the newest 10 visits | Prevent a long older visit hiding a newer visit; covered by regression check. Keep MIN_FRAMES/MAD guards and default thresholds. | Daniel |
+| 16:01 | User-approved cross-slice edit: optional keyword-only `ts` on `capture.store.save`, allowed only for finite replay timestamps | CLI `add-folder --start` needs persistent replay time; live frames still use server receive time. All frame-table writes stay in capture store. Config and contracts unchanged. | Daniel |
+| 16:01 | Model inference offline from cache; bounded single GPU worker; 5 s image and 2 s query deadlines, discard late results | Keep questions responsive without unbounded queued kernels or late index writes. Startup load synchronous. Stored model/image budget mismatches fail loudly. | Daniel |
+| 16:01 | Use MIN_FRAMES=3/Z_MIN=0.5 only for labelled three-photo CLI diagnostic; retain production defaults 30/3 | Three photos cannot validate calibrated retrieval; default guard returns none. 60-frame throughput fixture repeats supplied photos and is not an accuracy dataset. | Daniel |
 
 ## Log — Varick
 
