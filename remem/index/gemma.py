@@ -223,15 +223,25 @@ def add(records: list[FrameRecord]) -> list[AddResult]:
     return results
 
 
-def search(text: str, k: int = 10) -> list[SearchHit]:
+def score_frames(text: str) -> tuple[list[FrameRecord], np.ndarray]:
+    """Local evaluator snapshot: same query encode and scores as search, no cutoff."""
     with _state_lock:
         records, matrix = _records, _matrix
+    if not records:
+        return records, np.array([], dtype=np.float32)
+    query = _encode(text, timeout=2.0, prompt_name="SearchQuery")[0]
+    return records, matrix @ query
+
+
+def search(text: str, k: int = 10) -> list[SearchHit]:
+    with _state_lock:
+        records = _records
     if len(records) < config.MIN_FRAMES or not records or k <= 0:
         return []
     started = perf_counter()
-    query = _encode(text, timeout=2.0, prompt_name="SearchQuery")[0]
+    records, scores = score_frames(text)
     embedded = perf_counter()
-    hits = rank(records, matrix @ query, min(k, config.TOP_K))
+    hits = rank(records, scores, min(k, config.TOP_K))
     _log.info("search embed_ms=%.2f rank_ms=%.2f hits=%d", (embedded - started) * 1000,
               (perf_counter() - embedded) * 1000, len(hits))
     return hits

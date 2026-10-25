@@ -29,7 +29,11 @@ or MAD=0 returns no candidates. Every frame at or above `Z_MIN` participates in
 visit merging; consecutive candidates strictly less than `VISIT_GAP_S` apart are
 one visit. The peak frame represents each visit, with ties taking the newer
 frame. Return the newest `min(k, TOP_K)` visits. Raw scores are diagnostic only.
-`decide` retains the skeleton's z-only rule; R8 and recall remain deferred.
+`decide` implements z-only and supplied-verdict rules. `None` verdicts means
+disabled/whole-call timeout and falls back to z; `{}` means verification completed
+without usable verdicts and returns None. Only the newest `VERIFY_N` candidates
+are considered, and the newest positive verdict wins; its confidence sets the
+band. No verifier model is loaded here. R8 model backends and recall remain deferred.
 
 ## CLI
 
@@ -65,3 +69,35 @@ python -m ruff check .
 Use a fresh test temporary directory per run. These checks cover robust-z guards,
 merge-before-limit, newest versus highest, exact gap boundaries, persistence and
 reload, failure vectors, float16 rejection, bounded batches, and late GPU results.
+
+## Decision and evaluation checks
+
+```powershell
+$env:REMEM_INDEX='stub'
+spikes/daniel/.venv/Scripts/python -m pytest -q tests spikes/daniel/test_backend.py spikes/daniel/test_eval.py --basetemp=data/index-eval-check
+
+# Real recording must already be replayed into this DATA_DIR; windows must be filled.
+$env:REMEM_INDEX='gemma'
+$env:REMEM_DATA_DIR='data/replay-day1'
+spikes/daniel/.venv/Scripts/python eval/run_testset.py --sweep
+
+# After applying recommended thresholds and restarting the local server:
+spikes/daniel/.venv/Scripts/python eval/run_testset.py --base-url http://127.0.0.1:8000
+```
+
+The sweep embeds each find query once, writes local `eval/results/sweep.candidates.jsonl`
+with every frame at z >= 1.5, and evaluates z_min=2..8 / z_act=z_min..10 in 0.25 steps.
+It uses the production robust-z and visit merging functions. A true-frame retention
+target of 90%, zero false-found, and zero wrong Act guide selection; if infeasible,
+zero false-found takes priority and the shortfall is reported. No `.env` is changed.
+
+`--date YYYY-MM-DD` specifies the recording's local date; otherwise it is inferred
+from replay timestamps in the configured database. `HH:MM:SS-end` windows use the
+last replay timestamp, or `--recording-end HH:MM:SS` / epoch seconds. Use the same
+DATA_DIR as the server. Missing windows stay unscored and make latest-sighting
+accuracy pending. Recall is scored separately. Errors count against never-seen
+and present results; median HTTP time includes failures/timeouts, reported separately.
+Review the 28 answer frames visually after the automated window check.
+
+The summary is written to `eval/results/summary.md`; JSON details stay ignored.
+Use `--summary` for diagnostic reports. An incomplete/blocked run exits 2.

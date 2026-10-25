@@ -6,20 +6,33 @@ from remem import config
 from remem.contracts import FrameRecord, SearchHit
 
 
-def rank(records: list[FrameRecord], scores: np.ndarray, k: int = 10) -> list[SearchHit]:
+def robust_z(scores: np.ndarray) -> np.ndarray | None:
+    """Return robust query-relative z, or None when MAD is zero."""
+    scores = np.asarray(scores, dtype=np.float64)
+    if scores.ndim != 1 or not np.isfinite(scores).all():
+        raise ValueError("Scores must be a finite vector")
+    if not len(scores):
+        return None
+    center = np.median(scores)
+    mad = np.median(np.abs(scores - center))
+    if mad == 0:
+        return None
+    return (scores - center) / (1.4826 * mad)
+
+
+def rank(records: list[FrameRecord], scores: np.ndarray, k: int = 10, *,
+         z_min: float | None = None) -> list[SearchHit]:
     """Merge every qualifying frame before limiting the number of newest visits."""
     scores = np.asarray(scores, dtype=np.float64)
     if scores.shape != (len(records),) or not np.isfinite(scores).all():
         raise ValueError("Scores must be a finite vector aligned with frame records")
     if len(records) < config.MIN_FRAMES or not records or k <= 0:
         return []
-    center = np.median(scores)
-    mad = np.median(np.abs(scores - center))
-    if mad == 0:
+    z = robust_z(scores)
+    if z is None:
         return []
-    z = (scores - center) / (1.4826 * mad)
     candidates = sorted(
-        (int(i) for i in np.flatnonzero(z >= config.Z_MIN)),
+        (int(i) for i in np.flatnonzero(z >= (config.Z_MIN if z_min is None else z_min))),
         key=lambda i: (records[i].ts, records[i].id),
     )
     visits: list[list[int]] = []
