@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+photos/
+*.local.json
+*.local.txt
