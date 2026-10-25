@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | wip | 15:47 every endpoint curled on stub; pushed to main; LICENSE still missing |
 | 1 | 3:15 | Aziz: Safari camera preview over the tunnel on venue Wi-Fi + one JPEG on disk · Daniel: one frame embedded on GPU < 0.5 s, "a photo of keys" ranks the keys photo 1st of 3 · Varick: ask page on 2nd iPhone sends a question, shows stub card from `GET /ask` · All: repo, LICENSE, README skeleton pushed, every stub live · PROPOSED items signed off | wip | 16:02 Aziz part passed: camera iPhone → tunnel → frames on disk (29 frames, lag 0.1 s) |
-| S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | todo | |
+| S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | wip | 16:20 only a 4.5 s wallet test clip (`wallet.mp4`, 4 frames): replays fine, ground truth v0 written; the 20–30 min day with 8 props is not recorded |
 | 2 | 4:45 | Replayed day answers "where are my keys" correctly end to end. **No → cut R10, R11, R13 + R12 except its counter** | todo | |
 | — | 5:15 | z_min / z_act set from the 40-query test set | todo | |
 | 3 | 6:00 | Code freeze; then backup video 6:00–6:10, submit 6:10–6:15 (closes 6:30) | todo | |
@@ -83,9 +83,9 @@
 
 ## Aziz — capture, transport, ingest
 
-- **Now:** 16:16 R5 replay done + row-1 dashboard (`aziz/capture`). Day recorded, no paper log: moving the MOV onto the laptop
-- **Next:** strip audio → `~/remem-data/videos/day.mp4`; start clock from the MOV metadata; draft `ground_truth.csv` from timestamped contact sheets, Aziz confirms spots (S1, late) → replay the day into `replay-day1` for gate 2
-- **Blocked:** recording not on the laptop yet. LICENSE has to be added on github.com (Apache-2.0 template), not typed
+- **Now:** 16:20 R5 replay done + row-1 dashboard (`aziz/capture`). Real iPhone clip (`wallet.mp4`, 4.5 s) replays upright with 0 drops; `ground_truth.csv` v0 covers that clip only
+- **Next:** record the 20–30 min day (8 props, 3 moves, 4 landmarks), send the original file (AirDrop/USB, not a messaging app) so the start time comes from metadata → contact sheets → full `ground_truth.csv` → replay into `replay-day1` for gate 2
+- **Blocked:** full recorded day (gate 2 needs keys on video; z tuning needs ≥ 30 frames). LICENSE has to be added on github.com (Apache-2.0 template), not typed
 
 ## Daniel — index and retrieval
 

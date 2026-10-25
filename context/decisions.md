@@ -77,6 +77,7 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | 16:16 | Replay reads videos from `DATA_DIR.parent/videos` (`data/videos/`, or `~/remem-data/videos/` in WSL); `start_clock` is taken as today in `TZ`; `POST /replay` answers `400` for a bad video name/clock/speed (contract `409` while one runs) | Matches data.md's layout in both setups; hack day = one day; bad requests shouldn't create failed jobs | Aziz |
 | 16:16 | After a replay finishes, `/status` mode reads `stalled` (lag = now − the recording's ts) | Formula unchanged; replay DATA_DIRs are never the live demo's | Aziz |
 | 16:16 | Dashboard already renders the latest answer with Varick's `card.js` (not `<pre>` JSON) | card.js landed on main; 4 lines | Aziz |
+| 16:20 | `ground_truth.csv` v0 = the 4.5 s `wallet.mp4` test clip (wallet on a light wood table, in view 0–2 s, then walking away). Start clock 16:15:11 = file time 16:15:16 − clip length: an upper bound, since the clip arrived via a messaging app with no creation date | No paper log; replay ts uses the same start_clock, so windows stay consistent. **Not S1:** 4 frames < `MIN_FRAMES` 30, one prop, no keys, no moves or landmarks | Aziz |
 
 ## Log — Daniel
 
