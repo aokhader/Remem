@@ -19,7 +19,7 @@
 | 3 | 0:50–1:30 | Judge A | Hides sunglasses where the wearer will walk past; wearer walks past once; Judge A asks "Where are the sunglasses?" | Newest frame shows the judge's chosen spot, not an earlier one (**live change**) | R3 R7 R9 |
 | 4 | 1:30–1:55 | Judge B | "Where is my passport?" | Card says "I haven't seen your passport" and shows **no frame** (**failure path**) | R7 R9 |
 | 5 | 1:55–2:30 | Asker | Stretch: "When was I at the whiteboard?" (if cut: keys' sighting timeline) | A time range and a strip of 3–5 frames appear | R13 / R11 |
-| 6 | 2:30–3:00 | Presenter | Show README model table. Say: "Your whole day was indexed and searched on this laptop; no frame ever left it. Next step is Meta's glasses toolkit." | README with models and licenses is on screen | R16 |
+| 6 | 2:30–3:00 | Presenter | Show README model table. Say: "Your whole day was stored and searched only on this laptop. Next step is Meta's glasses toolkit." | README with models and licenses is on screen | R16 |
 
 Row 3 note: "Where are the sunglasses?" uses "are the", not "my" — R6's regex must accept it.
 
@@ -58,7 +58,7 @@ Record rows 1–6 in one take. If live Wi-Fi or a phone fails on stage, play it 
 | 3 | 3 | Phone video + ask iPhone screen recording | Sunglasses placed, wearer walks past, ask → new spot |
 | 4 | 4 | ask iPhone screen recording | Passport → "I haven't seen your passport", no frame |
 | 5 | 5 | ask iPhone screen recording | Recall range + strip (or keys' timeline) |
-| 6 | 6 | Laptop screen recording | README model table + "no frame ever left this laptop" |
+| 6 | 6 | Laptop screen recording | README model table + "stored and searched only on this laptop" |
 
 Who films: PROPOSED — Presenter films shots 1 and 3 on their own phone; Asker screen-records on the ask iPhone.
 

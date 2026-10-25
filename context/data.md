@@ -34,7 +34,7 @@ water bottle,chair next to the projector,14:58:15,move,
 
 ## `eval/test_set.csv` — 40 scripted queries (spec schema)
 
-`id,query,expected_object,expected_window,expected_band` — window = `HH:MM:SS-HH:MM:SS` local, **already widened ±10 s** around the ground-truth time, or `NONE`.
+`id,query,expected_object,expected_window,expected_band` — window, local time: `HH:MM:SS-end` for find queries (from the object's last placement/move −10 s to the end of the recording, because any later sighting of that spot is right too), `HH:MM:SS-HH:MM:SS` for recall stretches, or `NONE`.
 
 | IDs | Count | Kind | Expected |
 |---|---|---|---|
@@ -46,11 +46,12 @@ water bottle,chair next to the projector,14:58:15,move,
 - All 40 run **after the whole day has replayed**, so a moved prop's present queries also expect its newest spot.
 - Phrasings must exercise R6's regex: "where are my X", "where is my X", "have you seen my X", "where did I leave my X", "where's my X", "when was I at the X".
 - Varick drafts all 40 rows with windows blank by 3:45, fills windows from `ground_truth.csv` right after S1.
-- Spec sample rows (IDs illustrative — sample T09 is sunglasses, our prop order puts sunglasses at T04–T06):
+- Spec sample rows:
 ```csv
-T01,where are my keys,keys,14:41:05-14:41:20,act
+T01,where are my keys,keys,14:41:00-end,act
+T04,where did I leave my sunglasses,sunglasses,14:52:20-end,act
 T25,where is my passport,passport,NONE,none
-T33,where is my water bottle now,water bottle,14:58:10-14:58:25,act
+T33,where is my water bottle now,water bottle,14:58:05-end,act
 T37,when was I at the whiteboard,whiteboard,14:47:00-14:49:30,act
 ```
 
@@ -63,7 +64,7 @@ T37,when was I at the whiteboard,whiteboard,14:47:00-14:49:30,act
    - **z_min** = keeps the true frame in C for **≥ 90% of present queries** while **every never-seen query lands in None**.
    - If both can't hold, never-seen → None wins (false-found target is 0). Log it in `decisions.md`. (PROPOSED tie-break)
    - Expect z_min to rise: with ~1,800 frames, even pure noise puts a few frames above z = 3.
-4. Write `Z_MIN`, `Z_ACT` to `.env`, restart, run `python eval/run_testset.py` end to end over HTTP on localhost.
+4. Write `Z_MIN`, `Z_ACT` to `.env`, restart, run `python eval/run_testset.py` end to end over HTTP on localhost. Look at the 28 answer frames once: a frame inside the window that doesn't show the object is still wrong.
 5. Same for `CONF_ACT`/`CONF_ASK` (0.8/0.5) only if R8 ships.
 
 **README numbers** (Daniel writes `eval/results/summary.md`; R16):

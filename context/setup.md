@@ -21,7 +21,7 @@ Write the `is_bf16_supported()` result in `progress.md` → kickoff. True → bf
 export HF_HOME=~/.cache/huggingface        # keep the cache on the Linux filesystem
 python -c "from huggingface_hub import snapshot_download; snapshot_download('google/embeddinggemma-2')"
 ```
-If it asks for login: accept the terms on the model page, then `HF_TOKEN` in `.env` (never commit, never print).
+Not gated as of Oct 25, so no login. If it ever asks for one: accept the terms on the model page, then `HF_TOKEN` in `.env` (never commit, never print).
 Load with `SentenceTransformer("google/embeddinggemma-2", config_kwargs={"audio_config": None}, model_kwargs={"torch_dtype": ...})` — **check the exact kwargs against the model card / installed sentence-transformers before writing the call.**
 
 ## 3. Only if R8 is attempted (after demo rows 1–4 pass twice)
@@ -47,7 +47,7 @@ Works because torch/sentence-transformers are imported **only** inside `remem/in
 # server (Aziz)
 REMEM_DATA_DIR=data/live          # data/replay-day1 for test runs
 REMEM_PORT=8000
-TZ=America/Los_Angeles            # WSL often defaults to UTC; ground_truth.csv is local time
+TZ=America/Los_Angeles            # ground_truth.csv is local time; convert with zoneinfo.ZoneInfo(TZ), not the process zone (WSL may run in UTC)
 INGEST_QUEUE_MAX=8                # drop-oldest deque
 MAX_FRAME_BYTES=2000000
 STALL_S=3
@@ -73,7 +73,7 @@ VERIFY_N=5
 VERIFY_TIMEOUT_S=2.5
 CONF_ACT=0.8
 CONF_ASK=0.5
-STT_MODEL=openai/whisper-small    # R10 (PROPOSED model; check license for README)
+STT_MODEL=openai/whisper-small    # R10 (PROPOSED model; Apache-2.0 on HF)
 # Hugging Face
 HF_HOME=/home/<you>/.cache/huggingface
 HF_TOKEN=                         # only if required; never commit

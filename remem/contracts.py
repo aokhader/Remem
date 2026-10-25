@@ -1,3 +1,4 @@
+# Verbatim copy of context/contracts.md → Data shapes. Frozen at gate 1: change only via the owner + decisions.md.
 from typing import Literal
 from pydantic import BaseModel, Field
 

@@ -1,0 +1,23 @@
+[project]
+name = "remem"
+version = "0.1.0"
+description = "Where are my keys? The last frame your glasses saw them in, indexed on your laptop."
+readme = "README.md"
+license = "Apache-2.0"
+requires-python = ">=3.11"
+dependencies = ["fastapi", "uvicorn", "numpy", "pillow"]  # stub mode (setup.md §4)
+
+[project.optional-dependencies]
+gpu = ["sentence-transformers", "transformers", "accelerate", "torchcodec"]  # demo laptop (setup.md §1)
+dev = ["ruff", "pytest"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint.per-file-ignores]
+"remem/contracts.py" = ["I001"]  # verbatim copy of context/contracts.md, import order included
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

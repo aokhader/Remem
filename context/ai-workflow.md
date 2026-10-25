@@ -29,7 +29,7 @@ Three people run Claude Code in parallel on three slices. These rules keep the s
 
 ## Never
 
-- Send a frame, vector or question off the laptop (no cloud API, no paid API, no telemetry, no CDN).
+- Send a frame, vector or question anywhere but the two iPhones over the tunnel (no cloud API, no paid API, no telemetry, no CDN).
 - Print or log tokens/secrets; commit `.env`, weights, frames, videos, `*.db`.
 - Invent data: no made-up test results, ground-truth times, latency numbers or licenses. Unknown → say unknown.
 - Use a raw cosine cutoff, or pick the highest score instead of the newest candidate.
