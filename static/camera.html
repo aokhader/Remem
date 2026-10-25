@@ -23,7 +23,8 @@
   <p>Sent <b id="sent">0</b> · last POST <b id="ms">–</b> ms</p>
 </main>
 <script type="module">
-// R1 (ui.md → Camera page): rear camera → 640 px JPEG → POST /frames every 1000 ms, max 1 request in flight.
+// R1 (ui.md → Camera page): rear camera → 640 px JPEG → POST /frames 3 times a second, max 1 request in flight.
+const TICK_MS = 1000 / 3;  // 3 fps (decisions.md 16:40); replay.py samples videos at the same rate
 const $ = (id) => document.getElementById(id);
 const video = $("video");
 const canvas = document.createElement("canvas");
@@ -62,7 +63,7 @@ async function post(blob) {
 }
 
 function tick() {
-  setTimeout(tick, stalled ? 2000 : 1000);  // schedule first so slow POSTs don't stretch the 1 s cadence
+  setTimeout(tick, stalled ? 2000 : TICK_MS);  // schedule first so slow POSTs don't stretch the cadence
   if (inFlight || !video.videoWidth) return;  // skip the tick while the previous POST is in flight
   canvas.width = 640;
   canvas.height = Math.round(640 * video.videoHeight / video.videoWidth);

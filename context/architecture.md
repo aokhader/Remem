@@ -9,7 +9,7 @@ CAPTURE                                         ┃ LAPTOP = TRUST BOUNDARY (WSL
 Camera iPhone (forehead, Safari, rear camera)   ┃
   POST /frames, 1 JPEG/s, HTTPS ─ cloudflared ─▶┃ Ingest (FastAPI) ─▶ Frame store (JPEG on disk + SQLite row)
                                                 ┃   ─▶ EmbeddingGemma 2 image embed (GPU) ─▶ Frame matrix (NumPy, RAM)
-Replay (R5): day.mp4 at 1 fps ─────────────────▶┃ Ingest      (bypass: no phone, no tunnel)
+Replay (R5): day.mp4 at 3 fps ─────────────────▶┃ Ingest      (bypass: no phone, no tunnel)
 ASK                                             ┃
 Ask iPhone (Safari /ask) ─ GET /ask?q= ─ tunnel▶┃ Question → object (regex) → EG2 text embed "a photo of {X}", SearchQuery
                                                 ┃ → Rank: cos vs every frame, robust z, z ≥ z_min, merge < 5 s, 10 newest visits

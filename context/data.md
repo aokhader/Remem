@@ -4,15 +4,13 @@ File owners: `eval/ground_truth.csv` Aziz · `eval/test_set.csv` Varick · `eval
 
 ## The recorded day (Aziz, 3:15–3:45; spec → Data and decision rules)
 
-- **~10 min from Ray-Ban Meta glasses**, worn normally, at the venue (decision 16:25). The glasses cap each clip at **3 min** (default 60 s: raise it in the Meta AI app's camera settings), so the day is **≥ 4 back-to-back clips** → `data/videos/day-1.mp4` … `day-N.mp4`, ~600 frames in total. Keep the gaps between clips short; nothing is seen in a gap.
-- Quality doesn't need a setting: replay scales every frame to 640 px wide and ffmpeg decodes H.264 or HEVC, whatever resolution the glasses use.
-- Each clip is replayed on its own, oldest first, with **its own** `start_clock`, so frame times stay true across the gaps. Read each clip's start from its metadata (`ffprobe … format_tags=creation_time`); if that tag is missing, use the capture time shown in the Meta AI app.
+- **10 min**, camera iPhone on the forehead, at the venue, in the **iPhone Camera app** at **720p HD at 30 fps** (Settings → Camera → Record Video) and **Most Compatible** = H.264 (Settings → Camera → Formats). 720p/30 is the most Meta's toolkit streams from Ray-Ban Meta glasses (spec → Why a phone is an honest stand-in), so the footage is no sharper than the glasses' would be (decision 16:40). Replay samples it at 3 fps → ~1,800 frames.
 - 8 distinct props, each placed on camera and logged: **keys (bright keychain), sunglasses, water bottle, wallet, earbuds case, charger, notebook, mug**.
 - Move **three** of them once mid-recording; log the new spot and time.
 - Linger ≥ 1 min at 4 landmarks (one is the whiteboard) for the 4 recall queries (R13); log start + end. (PROPOSED)
-- The wearer logs clock times on their phone (the glasses do the recording). Missed times are recovered from timestamped contact sheets of the clips.
-- **No audio** (decision): the glasses record sound, so strip it on import — `ffmpeg -i <clip> -an -c:v copy data/videos/day-N.mp4`, then delete the original.
-- Getting the clips to the Windows demo laptop: import them from the glasses in the Meta AI app (they land in the phone's camera roll), then AirDrop to a teammate's Mac → USB stick / LAN copy, or USB cable + Windows Photos import. **Never through a messaging app**: it downscales and strips the capture time. (PROPOSED)
+- The wearer logs clock times on a second phone/paper (the camera phone is busy recording).
+- **No audio** (decision): strip it on import — `ffmpeg -i day.MOV -an -c:v copy data/videos/day.mp4`, then delete the `.MOV`.
+- Getting the file to the Windows demo laptop: AirDrop doesn't reach Windows → AirDrop to a teammate's Mac, then USB stick / LAN copy, or USB cable + Windows Photos import. (PROPOSED)
 - Push `eval/ground_truth.csv` by **3:45** (sync point S1).
 
 ## `eval/ground_truth.csv` — spec fields + PROPOSED extras
@@ -59,13 +57,13 @@ T37,when was I at the whiteboard,whiteboard,14:47:00-14:49:30,act
 
 ## Setting z_min and z_act (everyone, 4:45–5:15; Daniel runs the script)
 
-1. Replay `day-1.mp4` … `day-N.mp4` once into `data/replay-day1/` (`speed: 0`, one job per clip, oldest first, each with its own `start_clock`). Embeddings persist, so restarts reload without re-embedding.
+1. Replay `day.mp4` once into `data/replay-day1/` (`speed: 0`). Embeddings persist, so restarts reload without re-embedding.
 2. `python eval/run_testset.py --sweep` (in-process): for every query, log all frames with z ≥ 1.5, then sweep `z_min ∈ [2, 8]` and `z_act ∈ [z_min, 10]` in 0.25 steps.
 3. Pick, per spec:
    - **z_act** = the lowest value with **zero wrong frames in Act** (wrong = newest visit doesn't overlap the expected window).
    - **z_min** = keeps the true frame in C for **≥ 90% of present queries** while **every never-seen query lands in None**.
    - If both can't hold, never-seen → None wins (false-found target is 0). Log it in `decisions.md`. (PROPOSED tie-break)
-   - Expect z_min to rise: with ~600 frames, even pure noise puts a few frames above z = 3.
+   - Expect z_min to rise: with ~1,800 frames, even pure noise puts a few frames above z = 3.
 4. Write `Z_MIN`, `Z_ACT` to `.env`, restart, run `python eval/run_testset.py` end to end over HTTP on localhost. Look at the 28 answer frames once: a frame inside the window that doesn't show the object is still wrong.
 5. Same for `CONF_ACT`/`CONF_ASK` (0.8/0.5) only if R8 ships.
 
@@ -121,7 +119,7 @@ Rules: each owner writes only its own table; one connection per thread; vectors 
 
 ```
 data/
-├── videos/day-N.mp4        recorded day (Ray-Ban Meta clips), audio stripped (never committed)
+├── videos/day.mp4          recorded day, audio stripped (never committed)
 ├── live/                   DATA_DIR for the live demo (from 5:30 PM)
 │   ├── remem.db (+ -wal, -shm)
 │   └── frames/000001.jpg … one 640 px JPEG per frame (~50 KB each, estimate)

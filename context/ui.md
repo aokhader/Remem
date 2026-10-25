@@ -76,7 +76,7 @@ Input: `<input type="text" enterkeyhint="search" autocomplete="off">`; Enter sub
 | streaming | Small preview, sent-frame counter, last POST ms, green dot + "LIVE" | 3 POST failures in a row or no ack > 3 s → stalled |
 | stalled | Red dot + "STALLED — check Wi-Fi/tunnel", retry every 2 s | next 200 → streaming |
 
-Capture: `getUserMedia({video:{facingMode:"environment"}, audio:false})` → canvas 640 px wide → `toBlob("image/jpeg", 0.7)` (quality PROPOSED) every 1000 ms; skip a tick if the previous POST is still in flight. Optional Wake Lock API (`navigator.wakeLock.request("screen")`) where supported; Auto-Lock Never is the real fix.
+Capture: `getUserMedia({video:{facingMode:"environment"}, audio:false})` → canvas 640 px wide → `toBlob("image/jpeg", 0.7)` (quality PROPOSED) every 333 ms (3 fps); skip a tick if the previous POST is still in flight. Optional Wake Lock API (`navigator.wakeLock.request("screen")`) where supported; Auto-Lock Never is the real fix.
 
 ## Dashboard (`/`, Aziz, R12) — projector
 

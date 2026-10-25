@@ -1,7 +1,7 @@
-"""R5 replay: decode data/videos/<video> at 1 fps with the ffmpeg CLI and feed every frame through the same ingest.
+"""R5 replay: decode data/videos/<video> at FPS with the ffmpeg CLI and feed every frame through the same ingest.
 
 ffmpeg over a pipe instead of torchcodec (decisions.md): capture needs no torch, and ffmpeg applies the iPhone
-rotation flag. Blocking put, so zero drops; frame k gets ts = start_clock + k (P10).
+rotation flag. Blocking put, so zero drops; frame k gets ts = start_clock + k / FPS (P10).
 """
 
 import logging
@@ -19,6 +19,7 @@ from remem import config
 from remem.capture import queue, store
 from remem.contracts import Frame, ReplayJob
 
+FPS = 3  # same rate as camera.html's TICK_MS (decisions.md 16:40)
 log = logging.getLogger(__name__)
 _latest: ReplayJob | None = None
 _lock = threading.Lock()
@@ -38,7 +39,7 @@ def _seconds(path: Path) -> int:
     out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
                          check=False, capture_output=True, text=True)  # a bad file shows up as unparsable stdout
     try:
-        return round(float(out.stdout))
+        return round(float(out.stdout) * FPS)
     except ValueError:
         raise ValueError(f"not a readable video: {path.name}") from None
 
@@ -54,15 +55,15 @@ def _jpegs(stream: IO[bytes]) -> Iterator[bytes]:
 
 
 def _run(job: ReplayJob, path: Path, t0: float) -> None:
-    cmd = ["ffmpeg", "-v", "error", "-i", str(path), "-an", "-vf", "fps=1,scale=640:-2",
+    cmd = ["ffmpeg", "-v", "error", "-i", str(path), "-an", "-vf", f"fps={FPS},scale=640:-2",
            "-f", "image2pipe", "-c:v", "mjpeg", "-q:v", "4", "-"]
     wall0 = time.monotonic()
     try:
         with subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE) as p:
             for jpeg in _jpegs(p.stdout):
                 if job.speed > 0:  # 1 = real time (demo fallback); 0 = as fast as the index keeps up
-                    time.sleep(max(0.0, wall0 + job.frames_done / job.speed - time.monotonic()))
-                rec = store.save(Frame(jpeg=jpeg, client_ts=None, source="replay"), ts=t0 + job.frames_done)
+                    time.sleep(max(0.0, wall0 + job.frames_done / FPS / job.speed - time.monotonic()))
+                rec = store.save(Frame(jpeg=jpeg, client_ts=None, source="replay"), ts=t0 + job.frames_done / FPS)
                 queue.put(rec, block=True)
                 job.frames_done += 1
             err = p.stderr.read().decode(errors="replace").strip()

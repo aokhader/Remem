@@ -4,7 +4,7 @@ Oct 25, 2026 · @Aziz
 
 ## Overview
 
-**Remem** answers "Where are my keys?" with the last frame your glasses saw them in. An iPhone worn on the forehead stands in for Meta glasses and sends one frame per second to a laptop. A second iPhone asks the questions and shows the answers. EmbeddingGemma 2 embeds every frame on the laptop. A spoken or typed question is embedded into the same vector space, and the newest matching frame comes back with its timestamp and how long ago it was seen.
+**Remem** answers "Where are my keys?" with the last frame your glasses saw them in. An iPhone worn on the forehead stands in for Meta glasses and sends three frames per second to a laptop. A second iPhone asks the questions and shows the answers. EmbeddingGemma 2 embeds every frame on the laptop. A spoken or typed question is embedded into the same vector space, and the newest matching frame comes back with its timestamp and how long ago it was seen.
 
 The MVP is the lost-item lookup. The stretch goal is moment recall ("when was I at the whiteboard?"), which reuses the same index.
 
@@ -27,7 +27,7 @@ At 6:30 PM judges should see five things work live, with nothing faked.
 
 **Goals**
 
-1. The phone streams 1 frame per second to the laptop, and a frame counter on the dashboard climbs.
+1. The phone streams 3 frames per second to the laptop, and a frame counter on the dashboard climbs.
 2. "Where are my keys?" returns the newest frame that shows the keys and how long ago it was seen, in under 5 seconds.
 3. Moving an object during the demo changes the answer within about 10 seconds.
 4. Asking for something never seen returns "I haven't seen your X" instead of a wrong frame.
@@ -69,9 +69,9 @@ Eight Musts, plus the frame counter from R12 that row 1 needs, carry demo rows 1
 | --- | --- | --- | --- |
 | R1 | Capture | Camera iPhone on the forehead runs a web page over HTTPS that opens the rear camera and POSTs one JPEG per second (640 px wide) with its timestamp | Must |
 | R2 | Ingest | Server saves each frame to disk and a row in SQLite (id, server receive time, path) | Must |
-| R3 | Index | Embed each frame with EmbeddingGemma 2 (text + vision only, 768 dims, normalized), keep up at 1 frame per second, and save each vector in SQLite so a restart reloads instead of re-embedding | Must |
+| R3 | Index | Embed each frame with EmbeddingGemma 2 (text + vision only, 768 dims, normalized), keep up at 3 frames per second, and save each vector in SQLite so a restart reloads instead of re-embedding | Must |
 | R4 | Index | Skip a frame whose embedding is near-identical to the last kept one (wearer standing still) | Should |
-| R5 | Index | Replay mode: feed a recorded MP4 through the same pipeline, 1 frame per second of video, as fast as the index keeps up (real time only as a demo fallback); each frame's time = recording start time + its offset in the video | Must |
+| R5 | Index | Replay mode: feed a recorded MP4 through the same pipeline, 3 frames per second of video, as fast as the index keeps up (real time only as a demo fallback); each frame's time = recording start time + its offset in the video | Must |
 | R6 | Query | Ask page on the second iPhone: text box (dictation works); pull the object out with a few regexes ("where is / are my / the X", "have you seen my X", "where did I leave my X"; "when was I at the X" goes to recall) | Must |
 | R7 | Retrieve | Embed the query, score every frame, keep the frames that stand out from the rest, merge them into visits, and pick the answer band from the newest visit's z (rules in Data) | Must |
 | R8 | Verify | Nice-to-have: Gemma 4 E4B double-checks the 5 newest candidates and names the spot; code still makes the call | Could |
@@ -96,9 +96,9 @@ One Python server on one laptop does everything; the phone runs a single web pag
 
 | Layer | Choice | Why | Fallback |
 | --- | --- | --- | --- |
-| Capture | One HTML page in Safari on the camera iPhone, worn on the forehead with the rear camera facing forward: `getUserMedia({video: {facingMode: "environment"}})`, draw to canvas, POST a JPEG every 1000 ms | No app install; Safari allows the camera on HTTPS pages | Record in the iPhone Camera app (Formats: Most Compatible, for H.264), copy it to the laptop by USB (AirDrop can't reach Windows), strip the audio, run replay mode (R5) |
+| Capture | One HTML page in Safari on the camera iPhone, worn on the forehead with the rear camera facing forward: `getUserMedia({video: {facingMode: "environment"}})`, draw to canvas, POST a JPEG 3 times a second (every 333 ms) | No app install; Safari allows the camera on HTTPS pages | Record in the iPhone Camera app (Formats: Most Compatible, for H.264), copy it to the laptop by USB (AirDrop can't reach Windows), strip the audio, run replay mode (R5) |
 | Transport | `cloudflared tunnel --url http://localhost:8000` (quick tunnel, no account), run inside WSL next to the server | Camera access only works on HTTPS or localhost; the tunnel is outbound, so it skips venue client isolation and WSL's inbound NAT | Retry with `--protocol http2`; iPhone Personal Hotspot as the laptop's uplink; replay mode if both fail |
-| Server | FastAPI + uvicorn in WSL; JPEGs on disk; SQLite rows; one in-memory NumPy matrix | Team knows Python. 3 hours at 1 fps is 10,800 × 768 floats (about 33 MB), so brute-force cosine takes milliseconds; no vector DB needed | None needed |
+| Server | FastAPI + uvicorn in WSL; JPEGs on disk; SQLite rows; one in-memory NumPy matrix | Team knows Python. 3 hours at 3 fps is 32,400 × 768 floats (about 100 MB), so brute-force cosine takes milliseconds; no vector DB needed | None needed |
 | Embedding (core) | EmbeddingGemma 2 (`google/embeddinggemma-2`) from Hugging Face via sentence-transformers, `config_kwargs={"audio_config": None}` (loads 440M of the 740M params: no audio encoder), on the NVIDIA GPU through CUDA in WSL; bfloat16 if supported, else float32 | Open (Apache 2.0), free, text and images in one 768-d space, built to run on laptops | Image budget 70 tokens; embed every 2nd frame |
 | Verify (R8, nice-to-have) | Gemma 4 E4B (`google/gemma-4-E4B-it`) from Hugging Face via transformers on the laptop GPU; image before text, `enable_thinking=False`, JSON out; 4-bit if VRAM is short. Free, no billing | Adds the spot line and a second check | Leave it off: the z-score bands decide alone |
 | Voice | iPhone keyboard dictation into the ask page's text box (zero code); push-to-talk with a local open speech model is R10 | Dictation is free and already works | Type the question |
@@ -133,7 +133,7 @@ One Python server on one laptop does everything; the phone runs a single web pag
 
 EmbeddingGemma 2 ranks frames and plain code makes the call; Gemma 4 can optionally double-check the newest few (R8). Cutoffs come from a 40-query test set run on a recorded "day", so every run repeats exactly.
 
-**The recorded day.** By 3:45 PM, record about 10 minutes with Ray-Ban Meta glasses at the venue. The glasses cap each clip at 3 minutes, so the day is at least 4 back-to-back clips; replay each one with its own start time. Place 8 props on camera and log the recording's start time, each placement and each move in `ground_truth.csv` (object, spot, clock time). Use distinct props: keys on a bright keychain, sunglasses, water bottle, wallet, earbuds case, charger, notebook, mug. Move three of them once mid-recording. For the recall queries, linger at least a minute at 4 landmarks (one is the whiteboard) and log each stretch's start and end time. The glasses record sound, so strip it on the laptop before anything else. Replay mode (R5) feeds these MP4s through the same pipeline once; the vectors are saved, so every test run after that reuses them.
+**The recorded day.** By 3:45 PM, record 10 minutes in the iPhone Camera app with the camera iPhone on the forehead at the venue, at 720p HD and 30 fps: the most Meta's toolkit streams from the glasses, so the footage is no sharper than theirs would be. Place 8 props on camera and log the recording's start time, each placement and each move in `ground_truth.csv` (object, spot, clock time). Use distinct props: keys on a bright keychain, sunglasses, water bottle, wallet, earbuds case, charger, notebook, mug. Move three of them once mid-recording. For the recall queries, linger at least a minute at 4 landmarks (one is the whiteboard) and log each stretch's start and end time. The Camera app records sound, so strip it on the laptop before anything else. Replay mode (R5) feeds this MP4 through the same pipeline once; the vectors are saved, so every test run after that reuses them.
 
 **Retrieval rule (R7).** For a query about object X, score every frame, then standardize scores within that query, because raw image-to-text scores are not calibrated.
 
@@ -159,7 +159,7 @@ Collapse candidates less than 5 s apart into one visit, keeping the higher score
 
 Recall answers (R13) are Act when at least one stretch is found, else None.
 
-z\_min = 3, z\_act = 5 and the 0.8 / 0.5 confidence cutoffs are placeholders. Expect z\_min to rise: with ~600 frames, even pure noise puts a few frames above z = 3. Set them at 4:45–5:15 PM from the test set: the lowest z\_act with zero wrong frames in Act, and the z\_min that keeps the true frame in C for at least 90% of present queries while every never-seen query lands in None.
+z\_min = 3, z\_act = 5 and the 0.8 / 0.5 confidence cutoffs are placeholders. Expect z\_min to rise: with ~1,800 frames, even pure noise puts a few frames above z = 3. Set them at 4:45–5:15 PM from the test set: the lowest z\_act with zero wrong frames in Act, and the z\_min that keeps the true frame in C for at least 90% of present queries while every never-seen query lands in None.
 
 **Test set: 40 scripted queries.** 24 present (8 props × 3 phrasings, IDs in the prop order above), 8 never-seen (passport, umbrella, cat…), 4 asked after a move (the 3 moved props, one asked twice), 4 moment-recall. All run after the whole day has replayed. A present answer is right when its frame is from the object's latest spot: after its last placement or move (−10 s), because any later sighting of that spot is right too. A recall answer is right when a returned stretch overlaps the logged one. Never-seen expects NONE.
 
