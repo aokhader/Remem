@@ -1,6 +1,6 @@
 <!doctype html>
-<!-- Ask page (R6, R9). Owner: Varick. Served at GET /ask; opened in Safari on the ask iPhone.
-     States: idle → searching → act | ask | none | error (context/ui.md).
+<!-- Ask page (R6, R9, R10). Owner: Varick. Served at GET /ask; opened in Safari on the ask iPhone.
+     States: idle → [listening →] searching → act | ask | none | error (context/ui.md).
      Dev: /ask?fixture=act|ask|none|recall|error|timeline renders a canned Answer, no server call. -->
 <html lang="en">
 <head>
@@ -17,6 +17,7 @@
       --muted: #5b6066;
       --line: #d9d4c8;
       --accent: #1b7f3b;
+      --listen: #b3261e;
       --field: #ffffff;
     }
     * { box-sizing: border-box; }
@@ -63,6 +64,31 @@
     }
     button:disabled { opacity: 0.45; cursor: default; }
     button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+    /* R10 push-to-talk: hold to record, release to send */
+    .mic {
+      display: grid;
+      place-items: center;
+      flex: 0 0 3.4rem;
+      padding: 0;
+      border: 2px solid var(--line);
+      background: var(--field);
+      color: var(--ink);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+    }
+    .mic svg { width: 1.5rem; height: 1.5rem; }
+    .mic[hidden] { display: none; }
+    body[data-state="listening"] .mic {
+      border-color: var(--listen);
+      background: var(--listen);
+      color: #fff;
+      animation: pulse 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse { 50% { box-shadow: 0 0 0 0.45rem rgba(179, 38, 30, 0.25); } }
+    @media (prefers-reduced-motion: reduce) { body[data-state="listening"] .mic { animation: none; } }
 
     .hint { margin: 0.6rem 0.2rem 0; color: var(--muted); font-size: 0.95rem; }
     .status {
@@ -126,9 +152,14 @@
       <label for="q" class="visually-hidden">Your question</label>
       <input id="q" name="q" type="text" enterkeyhint="search" placeholder="Where are my keys?"
              autocapitalize="sentences" spellcheck="false">
+      <button id="mic-btn" class="mic" type="button" aria-label="Hold to talk" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/>
+        </svg>
+      </button>
       <button id="ask-btn" type="submit">Ask</button>
     </form>
-    <p class="hint">Tap 🎤 on the keyboard to dictate.</p>
+    <p class="hint" id="hint">Tap 🎤 on the keyboard to dictate.</p>
 
     <div class="status" aria-live="polite"><span class="spinner" aria-hidden="true"></span><span id="status-text"></span></div>
 
@@ -151,16 +182,20 @@
     const form = document.getElementById("ask-form");
     const input = document.getElementById("q");
     const button = document.getElementById("ask-btn");
+    const mic = document.getElementById("mic-btn");
+    const hint = document.getElementById("hint");
     const statusText = document.getElementById("status-text");
     const result = document.getElementById("result");
 
     let inflight = null;
     let lastQuestion = "";
+    let settled = "idle"; // last non-transient state, restored when voice input fails
 
     function setState(state, text = "") {
       document.body.dataset.state = state;
       statusText.textContent = text;
-      button.disabled = state === "searching";
+      button.disabled = mic.disabled = state === "searching";
+      if (state !== "searching" && state !== "listening") settled = state;
     }
 
     function clientError(q, error, message) {
@@ -217,6 +252,90 @@
 
     document.querySelectorAll(".examples button").forEach((b) =>
       b.addEventListener("click", () => { input.value = b.textContent; ask(b.textContent); }));
+
+    // R10 push-to-talk: hold the mic, talk, release. The clip goes to POST /ask/voice
+    // (transcribed on the laptop, never saved), fills the box, then asks as if typed.
+    const MIN_HOLD_MS = 350;
+    const MAX_HOLD_MS = 15000;
+    let holding = false;
+    let recorder = null;
+    let maxTimer = null;
+
+    if (navigator.mediaDevices?.getUserMedia && window.MediaRecorder) {
+      mic.hidden = false;
+      hint.textContent = "Hold the mic and talk, or tap 🎤 on the keyboard to dictate.";
+    }
+
+    async function startTalking(event) {
+      event.preventDefault();
+      if (holding || recorder || mic.disabled) return;
+      holding = true;
+      try { mic.setPointerCapture(event.pointerId); } catch { /* release still ends via pointerup */ }
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      } catch {
+        holding = false;
+        setState(settled, "Microphone blocked. Type your question instead.");
+        return;
+      }
+      if (!holding) { // released while iOS was asking for permission
+        stream.getTracks().forEach((t) => t.stop());
+        setState(settled, "Mic ready. Hold it while you talk.");
+        return;
+      }
+      const chunks = [];
+      const started = performance.now();
+      recorder = new MediaRecorder(stream);
+      recorder.addEventListener("dataavailable", (e) => { if (e.data.size) chunks.push(e.data); });
+      recorder.addEventListener("stop", () => {
+        stream.getTracks().forEach((t) => t.stop()); // mic indicator off right away
+        clearTimeout(maxTimer);
+        const type = recorder.mimeType || "audio/mp4";
+        recorder = null;
+        if (performance.now() - started < MIN_HOLD_MS) {
+          setState(settled, "Hold the mic while you talk.");
+          return;
+        }
+        transcribe(new Blob(chunks, { type }));
+      });
+      recorder.start();
+      maxTimer = setTimeout(stopTalking, MAX_HOLD_MS);
+      setState("listening", "Listening… release to ask");
+    }
+
+    function stopTalking() {
+      holding = false;
+      if (recorder?.state === "recording") recorder.stop();
+    }
+
+    async function transcribe(blob) {
+      setState("searching", "Transcribing…");
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
+      try {
+        const res = await fetch("/ask/voice", {
+          method: "POST", body: blob, headers: { "Content-Type": blob.type }, signal: ctrl.signal,
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(body.detail || `HTTP ${res.status}`);
+        const text = (body.text || "").trim();
+        if (!text) {
+          setState(settled, "Didn't catch that. Hold the mic and try again, or type.");
+          return;
+        }
+        input.value = text;
+        ask(text);
+      } catch {
+        setState(settled, "Couldn't transcribe that. Type your question instead.");
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+
+    mic.addEventListener("pointerdown", startTalking);
+    for (const type of ["pointerup", "pointercancel", "lostpointercapture"]) mic.addEventListener(type, stopTalking);
+    mic.addEventListener("contextmenu", (e) => e.preventDefault());
 
     const fixture = new URLSearchParams(location.search).get("fixture");
     if (fixture) {

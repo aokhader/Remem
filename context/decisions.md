@@ -84,6 +84,11 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | 15:41 | Recall query text uses `QUERY_TEMPLATE` too ("a photo of whiteboard") until Daniel picks a recall phrasing | R13 text not specified | Varick |
 | 15:41 | `test_set.csv` T34–T36 objects and T38–T40 landmarks are guesses; windows blank until `ground_truth.csv` | Recording not logged yet | Varick |
 | 15:41 | Logging setup (`logging.basicConfig`) belongs in `app.py`; the `ask …` timing line only prints once that's configured | app.py is Aziz's | Varick |
+| 15:50 | R10 decodes with the ffmpeg CLI over pipes (no temp file) and runs `STT_MODEL` through the transformers ASR pipeline, English forced, **float32 pinned** (transformers 5 defaults to `dtype="auto"`) | Audio never touches disk; predictable precision; no new dependency (ffmpeg is P20) | Varick |
+| 15:50 | Speech model warms in the background when `/ask` (the page) is opened; a clip sent before it's loaded gets `504` and the page says "type your question" | No app.py change needed; first load takes seconds (32 s incl. download for whisper-tiny on Mac CPU) | Varick |
+| 15:50 | Clips quieter than RMS 0.003 or shorter than 0.25 s are rejected (`422`) instead of transcribed | Whisper invents "Thank you." on silence | Varick |
+| 15:50 | Added a `listening` state to the ask page (R10) | ui.md listed none for push-to-talk | Varick |
+| 15:50 | Contract change (my endpoint): `POST /ask/voice` now lists its error codes 400/413/422/503/504; added an R10 smoke row to setup.md | Clients need to tell "type instead" from "try again" | Varick |
 
 ## Log — Team (gate decisions, cuts, cutoffs)
 

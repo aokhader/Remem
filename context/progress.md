@@ -53,7 +53,7 @@
 | R7 | Query embed, robust z, top 10, bands | Daniel | Must | todo | |
 | R8 | Gemma 4 E4B double-check + spot line | Varick | Could | stub | 15:41 adapter + `none` backend only; real backends only after rows 1–4 pass twice |
 | R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | wip | 15:41 `/ask` → act/ask/none/error correct on stub index; card.js ready for the dashboard |
-| R10 | Push-to-talk, local speech model | Varick | Should | todo | cut if gate 2 fails |
+| R10 | Push-to-talk, local speech model | Varick | Should | wip | 15:50 hold-to-talk + `POST /ask/voice` built; tested with whisper-tiny on Mac CPU (~0.3 s/clip). Not yet on an iPhone or with whisper-small on the GPU |
 | R11 | Sighting timeline | Varick | Should | wip | 15:41 in card.js ("Show older sightings"); needs real multi-visit hits to verify |
 | R12 | Projector dashboard | Aziz | Should | todo | counter needed for row 1 |
 | R13 | Moment recall | Daniel | Could | todo | cut if gate 2 fails |
@@ -95,6 +95,6 @@
 
 ## Varick — ask page, answer card, UI
 
-- **Now:** 15:41 slice built on branch `varick-answer`: `remem/answer/` (extract, pipeline, card, verify, routes), `static/ask.html` + `card.js` + `card.css`, `tests/test_extract.py`, draft `eval/test_set.csv`. Runs today via `spikes/varick/devshim/devserver.py` (stub index, placeholder frames).
-- **Next:** open `/ask` on the ask iPhone over the tunnel (gate 1 check) · rebase onto main once S0 lands, delete the devshim · fill `test_set.csv` windows from `ground_truth.csv` · R10, then R14/R8 after rows 1–4 pass twice.
+- **Now:** 15:50 R10 push-to-talk built (`remem/answer/stt.py`, `POST /ask/voice`, mic button). 15:41 slice built on branch `varick-answer`: `remem/answer/` (extract, pipeline, card, verify, routes), `static/ask.html` + `card.js` + `card.css`, `tests/test_extract.py`, draft `eval/test_set.csv`. Runs today via `spikes/varick/devshim/devserver.py` (stub index, placeholder frames).
+- **Next:** open `/ask` on the ask iPhone over the tunnel (gate 1 check, incl. holding the mic) · rebase onto main once S0 lands, delete the devshim · fill `test_set.csv` windows from `ground_truth.csv` · R14/R8 only after rows 1–4 pass twice.
 - **Blocked:** S0 skeleton not on main (no `remem/contracts.py`, `config.py`, `app.py`, index stub) — Aziz. Need Aziz's OK that `remem.config` exposes module constants named like the env vars (`config.Z_ACT`, `config.QUERY_TEMPLATE`…). `ground_truth.csv` (S1) for test windows.
