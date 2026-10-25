@@ -49,12 +49,12 @@
 | R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | todo | |
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
 | R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | todo | |
-| R6 | Ask page + object regex | Varick | Must | todo | |
+| R6 | Ask page + object regex | Varick | Must | wip | 15:41 built; 61 extract tests pass; checked in browser on stub index. Not yet on the iPhone over the tunnel |
 | R7 | Query embed, robust z, top 10, bands | Daniel | Must | todo | |
-| R8 | Gemma 4 E4B double-check + spot line | Varick | Could | todo | only after rows 1–4 pass twice |
-| R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | todo | |
+| R8 | Gemma 4 E4B double-check + spot line | Varick | Could | stub | 15:41 adapter + `none` backend only; real backends only after rows 1–4 pass twice |
+| R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | wip | 15:41 `/ask` → act/ask/none/error correct on stub index; card.js ready for the dashboard |
 | R10 | Push-to-talk, local speech model | Varick | Should | todo | cut if gate 2 fails |
-| R11 | Sighting timeline | Varick | Should | todo | row 5 fallback; cut if gate 2 fails |
+| R11 | Sighting timeline | Varick | Should | wip | 15:41 in card.js ("Show older sightings"); needs real multi-visit hits to verify |
 | R12 | Projector dashboard | Aziz | Should | todo | counter needed for row 1 |
 | R13 | Moment recall | Daniel | Could | todo | cut if gate 2 fails |
 | R14 | Read answer aloud | Varick | Could | todo | |
@@ -95,6 +95,6 @@
 
 ## Varick — ask page, answer card, UI
 
-- **Now:**
-- **Next:** ask page + stub card on the 2nd iPhone (gate 1)
-- **Blocked:**
+- **Now:** 15:41 slice built on branch `varick-answer`: `remem/answer/` (extract, pipeline, card, verify, routes), `static/ask.html` + `card.js` + `card.css`, `tests/test_extract.py`, draft `eval/test_set.csv`. Runs today via `spikes/varick/devshim/devserver.py` (stub index, placeholder frames).
+- **Next:** open `/ask` on the ask iPhone over the tunnel (gate 1 check) · rebase onto main once S0 lands, delete the devshim · fill `test_set.csv` windows from `ground_truth.csv` · R10, then R14/R8 after rows 1–4 pass twice.
+- **Blocked:** S0 skeleton not on main (no `remem/contracts.py`, `config.py`, `app.py`, index stub) — Aziz. Need Aziz's OK that `remem.config` exposes module constants named like the env vars (`config.Z_ACT`, `config.QUERY_TEMPLATE`…). `ground_truth.csv` (S1) for test windows.

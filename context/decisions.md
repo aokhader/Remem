@@ -75,6 +75,15 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 
 | Time | Decision | Why | Who |
 |---|---|---|---|
+| 15:41 | Slice branch is `varick-answer` (code-standards.md says `varick/answer`) | Branch already created on GitHub with that name | Varick |
+| 15:41 | Build against a dev shim in `spikes/varick/devshim/` (contracts verbatim, config subset, index stub, dev server); delete it once S0 is on main | S0 skeleton not on main yet; shim keeps every edit inside my slice | Varick |
+| 15:41 | Code reads `remem.config` as module constants named like the env vars (`config.Z_ACT`, `config.TOP_K`, `config.QUERY_TEMPLATE`, `config.TZ`…) — **needs Aziz's OK** | contracts.md doesn't define the config API | Varick |
+| 15:41 | Added `remem/answer/pipeline.py` (`ask`, `latest`) and `static/dev-fixtures.js` (contract fixtures + an extra `timeline` fixture) | Keep routes thin; R11 needs a multi-sighting fixture | Varick |
+| 15:41 | `timings_ms` reports `search` (embed + rank together) instead of separate `embed`/`rank` | Split happens inside Daniel's `search()`; his logs have the breakdown | Varick |
+| 15:41 | Unparseable question → `band="error"`, message "Ask like: where are my keys?", `error="no object"`; recall with no moments → none, "I haven't seen you at the {X}." | Copy missing from ui.md | Varick |
+| 15:41 | Recall query text uses `QUERY_TEMPLATE` too ("a photo of whiteboard") until Daniel picks a recall phrasing | R13 text not specified | Varick |
+| 15:41 | `test_set.csv` T34–T36 objects and T38–T40 landmarks are guesses; windows blank until `ground_truth.csv` | Recording not logged yet | Varick |
+| 15:41 | Logging setup (`logging.basicConfig`) belongs in `app.py`; the `ask …` timing line only prints once that's configured | app.py is Aziz's | Varick |
 
 ## Log — Team (gate decisions, cuts, cutoffs)
 
