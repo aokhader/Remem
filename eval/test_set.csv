@@ -1,0 +1,41 @@
+id,query,expected_object,expected_window,expected_band
+T01,where are my keys,keys,,act
+T02,have you seen my keychain,keys,,act
+T03,where did I leave my keys,keys,,act
+T04,where are my sunglasses,sunglasses,,act
+T05,where did I leave my sunglasses,sunglasses,,act
+T06,have you seen my sunglasses,sunglasses,,act
+T07,where is my water bottle,water bottle,,act
+T08,where's my water bottle,water bottle,,act
+T09,have you seen my water bottle,water bottle,,act
+T10,where is my wallet,wallet,,act
+T11,where did I put my wallet,wallet,,act
+T12,have you seen my wallet,wallet,,act
+T13,where is my earbuds case,earbuds case,,act
+T14,where are my earbuds,earbuds case,,act
+T15,where did I leave my earbuds case,earbuds case,,act
+T16,where is my charger,charger,,act
+T17,where's my phone charger,charger,,act
+T18,have you seen my charger,charger,,act
+T19,where is my notebook,notebook,,act
+T20,where did I leave my notebook,notebook,,act
+T21,have you seen my notebook,notebook,,act
+T22,where is my mug,mug,,act
+T23,where's my coffee mug,mug,,act
+T24,where did I put my mug,mug,,act
+T25,where is my passport,passport,NONE,none
+T26,where is my umbrella,umbrella,NONE,none
+T27,have you seen my cat,cat,NONE,none
+T28,where is my guitar,guitar,NONE,none
+T29,where did I leave my tennis racket,tennis racket,NONE,none
+T30,where is my frying pan,frying pan,NONE,none
+T31,where's my skateboard,skateboard,NONE,none
+T32,have you seen my teddy bear,teddy bear,NONE,none
+T33,where is my water bottle now,water bottle,,act
+T34,where are my sunglasses now,sunglasses,,act
+T35,where is my mug now,mug,,act
+T36,where's my water bottle now,water bottle,,act
+T37,when was I at the whiteboard,whiteboard,,act
+T38,when was I by the whiteboard,whiteboard,,act
+T39,when was I at the door,door,,act
+T40,when was I at the window,window,,act

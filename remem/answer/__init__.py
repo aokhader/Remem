@@ -1,26 +1,19 @@
-"""Answer facade (Varick). S0 stub: canned fixture Answers (contracts.md → Functions)."""
+"""Varick's slice: ask page, object extraction, answer card (R6 R9 R10 R11) + R8 verifier adapter.
 
-import time
+The HTTP router lives in remem.answer.routes so importing this package needs no FastAPI.
+ask/latest load the pipeline (and with it the index backend) on first use, so code that
+only needs extract() — like tests/test_extract.py — runs whatever REMEM_INDEX says.
+"""
 
-from remem import config
 from remem.answer.extract import extract
-from remem.contracts import Answer
+from remem.answer.verify import verify, verify_many
 
-_latest: Answer | None = None
-
-
-def ask(q: str) -> Answer:
-    global _latest
-    query = extract(q)
-    name = "none" if "passport" in q.lower() else "act"
-    canned = Answer.model_validate_json((config.ROOT / f"tests/fixtures/answer_{name}.json").read_text("utf-8"))
-    _latest = canned.model_copy(
-        update={"q": q, "object": query.object if query else canned.object, "asked_ts": time.time()})
-    return _latest
+__all__ = ["ask", "extract", "latest", "verify", "verify_many"]
 
 
-def latest() -> Answer | None:
-    return _latest
+def __getattr__(name: str):
+    if name in ("ask", "latest"):
+        from remem.answer import pipeline
 
-
-__all__ = ["ask", "extract", "latest"]
+        return getattr(pipeline, name)
+    raise AttributeError(f"module 'remem.answer' has no attribute {name!r}")

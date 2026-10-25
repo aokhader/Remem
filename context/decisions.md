@@ -83,6 +83,23 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 
 | Time | Decision | Why | Who |
 |---|---|---|---|
+| 15:41 | Slice branch is `varick-answer` (code-standards.md says `varick/answer`) | Branch already created on GitHub with that name | Varick |
+| 15:41 | Build against a dev shim in `spikes/varick/devshim/` (contracts verbatim, config subset, index stub, dev server); delete it once S0 is on main | S0 skeleton not on main yet; shim keeps every edit inside my slice | Varick |
+| 15:41 | Code reads `remem.config` as module constants named like the env vars (`config.Z_ACT`, `config.TOP_K`, `config.QUERY_TEMPLATE`, `config.TZ`…) — **needs Aziz's OK** | contracts.md doesn't define the config API | Varick |
+| 15:41 | Added `remem/answer/pipeline.py` (`ask`, `latest`) and `static/dev-fixtures.js` (contract fixtures + an extra `timeline` fixture) | Keep routes thin; R11 needs a multi-sighting fixture | Varick |
+| 15:41 | `timings_ms` reports `search` (embed + rank together) instead of separate `embed`/`rank` | Split happens inside Daniel's `search()`; his logs have the breakdown | Varick |
+| 15:41 | Unparseable question → `band="error"`, message "Ask like: where are my keys?", `error="no object"`; recall with no moments → none, "I haven't seen you at the {X}." | Copy missing from ui.md | Varick |
+| 15:41 | Recall query text uses `QUERY_TEMPLATE` too ("a photo of whiteboard") until Daniel picks a recall phrasing | R13 text not specified | Varick |
+| 15:41 | `test_set.csv` T34–T36 objects and T38–T40 landmarks are guesses; windows blank until `ground_truth.csv` | Recording not logged yet | Varick |
+| 15:41 | Logging setup (`logging.basicConfig`) belongs in `app.py`; the `ask …` timing line only prints once that's configured | app.py is Aziz's | Varick |
+| 15:50 | R10 decodes with the ffmpeg CLI over pipes (no temp file) and runs `STT_MODEL` through the transformers ASR pipeline, English forced, **float32 pinned** (transformers 5 defaults to `dtype="auto"`) | Audio never touches disk; predictable precision; no new dependency (ffmpeg is P20) | Varick |
+| 15:50 | Speech model warms in the background when `/ask` (the page) is opened; a clip sent before it's loaded gets `504` and the page says "type your question" | No app.py change needed; first load takes seconds (32 s incl. download for whisper-tiny on Mac CPU) | Varick |
+| 15:50 | Clips quieter than RMS 0.003 or shorter than 0.25 s are rejected (`422`) instead of transcribed | Whisper invents "Thank you." on silence | Varick |
+| 15:50 | Added a `listening` state to the ask page (R10) | ui.md listed none for push-to-talk | Varick |
+| 15:50 | Contract change (my endpoint): `POST /ask/voice` now lists its error codes 400/413/422/503/504; added an R10 smoke row to setup.md | Clients need to tell "type instead" from "try again" | Varick |
+| 15:58 | Merged S0 into `varick-routing`; my real `remem/answer/*` and `static/ask.html` replace the S0 placeholders; devshim copies of contracts/config/index deleted (devserver now uses the real package with `REMEM_INDEX=stub`) | S0 landed; one copy of each shared file | Varick |
+| 15:58 | Config API confirmed by S0: module constants. Only change needed: `config.DATA_DIR` (absolute Path) instead of `REMEM_DATA_DIR` | Matches Aziz's config.py | Varick |
+| 15:58 | `remem.answer` loads `ask`/`latest` lazily (module `__getattr__`) | `config.py` defaults to `REMEM_INDEX=gemma`, which doesn't exist yet; `test_extract.py` shouldn't need any index backend | Varick |
 
 ## Log — Team (gate decisions, cuts, cutoffs)
 

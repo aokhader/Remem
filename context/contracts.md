@@ -155,7 +155,7 @@ class StatusSnapshot(BaseModel): # Aziz GET /status (dashboard, R12)
 | `GET /camera` | Aziz, PROPOSED | — | `camera.html` |
 | `GET /ask` | Varick | **PROPOSED:** no `q` → `ask.html`; with `q` → JSON | `Answer`. Always `200`; internal failure → `band="error"`, `error` set |
 | `GET /ask/latest` | Varick, PROPOSED | — | `Answer \| null` (dashboard card, R12) |
-| `POST /ask/voice` | Varick, PROPOSED (R10) | audio body (Safari MediaRecorder `audio/mp4`) | `{"text": str}` — audio kept in memory only, never written |
+| `POST /ask/voice` | Varick (R10) | audio body (Safari MediaRecorder `audio/mp4`; webm/wav also work), ≤ 15 s used | `200 {"text": str}` · `400` empty · `413` > 2 MB · `422` undecodable / silence / too short · `503` no speech model or ffmpeg · `504` > 4 s (incl. cold model load). Audio kept in memory only, never written |
 | `GET /static/*` | Aziz (mount) | — | files in `static/` |
 
 ## Fixtures (`tests/fixtures/`, copied at S0, frozen)
