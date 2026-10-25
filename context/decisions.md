@@ -71,6 +71,8 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | 15:47 | `/status` counters come from SQLite on every poll (`COUNT`, `SUM(dropped)`, last row), no in-memory counters | Restarts keep the counter; no extra state | Aziz |
 | 15:47 | Placeholder `static/camera.html`, `dashboard.html`, `ask.html` at S0 | `GET /`, `/camera`, `/ask` return 200 before the real pages land | Aziz |
 | 15:47 | Fixture values not given in contracts.md were filled in: recall Moment 14:47:00–14:49:30 PDT, `frame_ids` 1172/1222/1272/1322, `peak_z` 5.0; error fixture reuses the none fixture's passport question | Illustrative only, consistent with the act fixture's 2:41 PM clock | Aziz |
+| 16:02 | Demo laptop runs uvicorn + cloudflared in WSL but from the Windows checkout: `cd /mnt/d/Documents/GitHub/Remem && REMEM_DATA_DIR=$HOME/remem-data/live ~/.venvs/remem/bin/uvicorn remem.app:app --host 127.0.0.1 --port 8000 --workers 1`; venv + HF cache in `~`; cloudflared binary in `~/.local/bin` (no sudo) | One checkout for editing; Linux CUDA wheels + ffmpeg already in WSL; DATA_DIR must be on the Linux side (SQLite WAL is unreliable on `/mnt/d`) | Aziz |
+| 16:02 | Camera frames are portrait 640×853 (3:4), ~65 KB | Phone held upright on the forehead; 640 px is the width as specified. Daniel: no resize assumptions | Aziz |
 
 ## Log — Daniel
 
