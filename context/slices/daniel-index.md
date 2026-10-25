@@ -5,7 +5,7 @@
 | ID | What | Priority | Demo row |
 |---|---|---|---|
 | R3 | EmbeddingGemma 2 frame embed (text + vision, 768-d, normalized), keeps up at 1 fps | Must | 2–4 |
-| R7 | Query embed, robust z, top 10 with z ≥ z_min, 5 s visit merge, newest-wins `decide()` | Must | 2–4 |
+| R7 | Query embed, robust z, z ≥ z_min, 5 s visit merge, 10 newest visits, newest-wins `decide()` | Must | 2–4 |
 | R4 | Skip a frame near-identical to the last kept one | Should | 1 (backlog) |
 | R13 | Moment recall: time ranges of matching stretches | Could | 5 |
 | — | `run_testset.py`, z_min/z_act sweep, README's 3 numbers | — | 6 |
@@ -35,7 +35,7 @@
 
 ## Retrieval notes
 
-- Formula, guards (MIN_FRAMES, MAD = 0) and decision table: `architecture.md`. Sign-off P4 (top-10-then-merge vs merge-then-top-10) is your call.
+- Formula, guards (MIN_FRAMES, MAD = 0) and decision table: `architecture.md`. Sign-off P4 (spec now merges first, then keeps the 10 newest visits) is your call.
 - One GPU lock around `encode`; batches ≤ `EMBED_BATCH` so a question waits ≤ one batch.
 - Store vectors as float32 LE BLOBs; matrix ordered by `frames.ts`.
 - R4: cosine to the last kept frame ≥ `DEDUPE_COS` (0.98) → `AddResult(status="dup", dup_of=…)`; consider refreshing the kept frame's `ts` so "N min ago" stays honest (your call, log it).
@@ -46,7 +46,7 @@
 | Problem | Fallback |
 |---|---|
 | Embed > 0.5 s / backlog grows | `EMBED_IMAGE_TOKENS=70`; embed every 2nd frame; R4 dedupe |
-| Keys never in top 10 | 560-token image budget; bright keychain; lower z_min; best A/B query text |
+| Keys never reach z_min | 560-token image budget; bright keychain; lower z_min; best A/B query text |
 | Look-alike answers "keys" | raise z_act so it lands in Ask |
 | Never-seen lands in Ask | raise z_min (never-seen → None wins) |
 | bf16 load error | float32 (never float16) |

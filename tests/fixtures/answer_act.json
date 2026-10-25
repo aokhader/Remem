@@ -1,0 +1,9 @@
+{"q": "Where are my keys?", "kind": "find", "object": "keys", "band": "act",
+ "message": "Your keys: seen 12 min ago (2:41 PM).",
+ "hit": {"frame_id": 812, "ts": 1792964460.0, "score": 0.35, "z": 6.2, "path": "frames/000812.jpg",
+         "visit_start": 1792964458.0, "visit_end": 1792964463.0, "n_frames": 4},
+ "frame_url": "/frames/812.jpg", "ago_s": 720.0, "spot": null,
+ "sightings": [{"frame_id": 812, "ts": 1792964460.0, "score": 0.35, "z": 6.2, "path": "frames/000812.jpg",
+                "visit_start": 1792964458.0, "visit_end": 1792964463.0, "n_frames": 4}],
+ "moments": [], "asked_ts": 1792965180.0,
+ "timings_ms": {"extract": 1, "embed": 80, "rank": 12, "verify": 0, "decide": 0, "total": 95}, "error": null}

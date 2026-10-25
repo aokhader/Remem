@@ -1,12 +1,12 @@
 # Remem — Claude Code project memory
 
-**Pitch.** Remem answers "Where are my keys?" with the last frame your glasses saw them in: a forehead-worn iPhone streams 1 frame/s to a laptop, where EmbeddingGemma 2 indexes every frame. A second iPhone asks the question and gets back the newest matching frame, "N min ago" and the clock time, with nothing leaving the laptop.
+**Pitch.** Remem answers "Where are my keys?" with the last frame your glasses saw them in: a forehead-worn iPhone streams 1 frame/s to a laptop, where EmbeddingGemma 2 indexes every frame. A second iPhone asks the question and gets back the newest matching frame, "N min ago" and the clock time, with every frame stored and searched only on the laptop.
 
 Hack Day: Sun Oct 25 2026, DS3 @ UC San Diego. Team: Aziz (capture), Daniel (index), Varick (answer).
 
 ## Hard rules (never break these)
 
-1. **Nothing leaves the laptop.** Only JPEGs in and answer cards out cross the tunnel. No cloud APIs, no Google Cloud/Vertex, no paid APIs, no audio saved.
+1. **Frames are stored and searched only on the laptop.** Only JPEGs in and answer cards out cross the tunnel. No cloud APIs, no Google Cloud/Vertex, no paid APIs, no audio saved.
 2. **Never float16** for EmbeddingGemma 2. bfloat16 if `torch.cuda.is_bf16_supported()`, else float32.
 3. **No raw score cutoffs.** Image-to-text cosine isn't calibrated; only the robust z-score within one query.
 4. **Newest candidate wins**, not the highest score.
@@ -20,7 +20,7 @@ Hack Day: Sun Oct 25 2026, DS3 @ UC San Diego. Team: Aziz (capture), Daniel (ind
 | Gate | Time | Pass when |
 |---|---|---|
 | 1 | 3:15 PM | Every slice's spike done + stub live; repo, LICENSE, README skeleton pushed; PROPOSED items signed off |
-| 2 | 4:45 PM | Replayed day answers "where are my keys" correctly end to end. **Go/no-go:** if not, cut R10–R13 |
+| 2 | 4:45 PM | Replayed day answers "where are my keys" correctly end to end. **Go/no-go:** if not, cut R10, R11, R13 and R12 except its frame counter |
 | 3 | 6:00 PM | Code freeze. Only demo-breaking fixes after this. Submit by 6:15, closes 6:30 |
 
 ## Map of context/ — read only what you need
