@@ -29,8 +29,9 @@ Owners: ask page + answer card + `card.js`/`card.css` = Varick (R6, R9, R10, R11
 | ask | Answer card, MAYBE + "Show older sightings" (expands R11 timeline) | new question |
 | none | Answer card, NOT SEEN, **no frame, no image box** | new question |
 | error | ERROR + "Try again" button; keep the typed question | Retry / new question |
+| listening (R10) | Mic button turns red and pulses; "Listening… release to ask" | release → searching ("Transcribing…"), then asks the transcript like typed text. Tap < 0.35 s, mic blocked, or nothing heard → back to the previous state with a hint |
 
-Input: `<input type="text" enterkeyhint="search" autocomplete="off">`; Enter submits. Keep the last question in the box after answering. R10 push-to-talk button sits next to the box (hold to record, release to send to `POST /ask/voice`, fills the box, then submits).
+Input: `<input type="text" enterkeyhint="search" autocomplete="off">`; Enter submits. Keep the last question in the box after answering. R10 push-to-talk button sits between the box and Ask (hold to record, max 15 s, release to send to `POST /ask/voice`, fills the box, then submits). Hidden when the browser lacks `MediaRecorder`; the mic stream stops the moment the finger lifts.
 
 ## Answer card layout (R9) — same renderer on ask page and dashboard (`card.js`)
 
