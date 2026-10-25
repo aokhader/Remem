@@ -70,6 +70,7 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 
 | Time | Decision | Why | Who |
 |---|---|---|---|
+| 15:38 | Run Gate 1 spike in isolated Windows venv reusing CUDA torch; retain 280 image tokens and `a photo of {X}` + SearchQuery | User approved spike dependencies; neither WSL distribution has model packages. GPU bf16 works; median 123.50 ms, keys #1. All six A/B variants tie on ranking; defer query changes until larger evaluation. Re-normalize vectors in float32 after bf16 rounding. | Daniel |
 
 ## Log — Varick
 

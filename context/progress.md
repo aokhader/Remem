@@ -46,11 +46,11 @@
 |---|---|---|---|---|---|
 | R1 | Camera page: rear camera, POST 640 px JPEG/s over HTTPS | Aziz | Must | todo | |
 | R2 | Save JPEG to disk + SQLite row | Aziz | Must | todo | |
-| R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | todo | |
+| R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | wip | 15:38: Gate 1 spike passed, warm single-image median 123.50 ms (5); backend/sustained test next |
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
 | R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | todo | |
 | R6 | Ask page + object regex | Varick | Must | todo | |
-| R7 | Query embed, robust z, top 10, bands | Daniel | Must | todo | |
+| R7 | Query embed, robust z, top 10, bands | Daniel | Must | wip | 15:38: SearchQuery ranks close keys, distant keys, no keys; robust z/backend not implemented |
 | R8 | Gemma 4 E4B double-check + spot line | Varick | Could | todo | only after rows 1–4 pass twice |
 | R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | todo | |
 | R10 | Push-to-talk, local speech model | Varick | Should | todo | cut if gate 2 fails |
@@ -89,9 +89,9 @@
 
 ## Daniel — index and retrieval
 
-- **Now:**
-- **Next:** EG2 embed spike (gate 1)
-- **Blocked:**
+- **Now:** 15:38 — Gate 1 model spike passed locally on Windows, RTX 4070 Laptop GPU (8188 MiB). `torch.cuda.is_bf16_supported() = True`; selected and actual parameter dtype `torch.bfloat16` (never float16). EG2 revision `914f7f89142e33e77833254d9c9b90c3cef7303b`; text + vision only, audio disabled; 280 image tokens; finite 768-d vectors, normalized again in float32 after bf16 rounding. Installed API signatures/source and model card checked before calls: torch 2.6.0+cu118, sentence-transformers 6.2.0, transformers 5.20.2. Offline cached model load 3.44 s. One untimed warm-up, then five synchronized single-image embeds of `closekey.jpeg`: 132.98, 129.96, 123.04, 123.50, 121.69 ms; **median 123.50 ms (< 500 ms)**, excluding load/JPEG decoding. `a photo of keys`, `prompt_name="SearchQuery"`: **closekey.jpeg #1 (0.709398), farkey.jpeg #2 (0.666007), nokey.jpeg #3 (0.563592)**. Scores are diagnostic only. Query A/B: question/photo/mean-of-three × with/without SearchQuery all rank close/far/no keys; no accuracy winner on 3 photos, retain baseline. Reproducible scripts/results summary in `spikes/daniel/`.
+- **Next:** 15:38 — R3/R7 backend and Gate 1 stub, then sustained 1 fps check; this single-image spike does not establish sustained ingest throughput or full Gate 1 completion.
+- **Blocked:** 15:38 — No spike blocker. Both Ubuntu distributions lack model packages; used approved isolated Windows spike environment reusing existing CUDA torch. WSL integration validation remains pending. Shared skeleton/config not present on main at session start.
 
 ## Varick — ask page, answer card, UI
 
