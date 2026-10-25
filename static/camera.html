@@ -1,5 +1,93 @@
 <!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Remem · camera</title>
-<p>Camera page placeholder (S0). R1 replaces this.</p>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 16px; font: 18px/1.4 system-ui, sans-serif; background: #111; color: #fff; text-align: center; }
+  button { display: block; margin: 30vh auto 0; padding: 24px 32px; font: 600 24px system-ui, sans-serif; border: 0; border-radius: 12px; }
+  #error { color: #ffb4ab; font-size: 20px; }
+  #state { margin: 8px 0 16px; font-size: 28px; font-weight: 700; }
+  .dot { display: inline-block; width: .8em; height: .8em; margin-right: .3em; border-radius: 50%; vertical-align: -.05em; }
+  .live .dot { background: #1B7F3B; }
+  .stalled .dot { background: #B3261E; }
+  video { width: 50%; max-width: 320px; border-radius: 8px; }
+  [hidden] { display: none !important; }
+</style>
+<button id="start">Tap to start camera</button>
+<p id="error" hidden></p>
+<main id="run" hidden>
+  <div id="state" class="live"><span class="dot"></span><span id="word">LIVE</span></div>
+  <video id="video" autoplay playsinline muted></video>
+  <p>Sent <b id="sent">0</b> · last POST <b id="ms">–</b> ms</p>
+</main>
+<script type="module">
+// R1 (ui.md → Camera page): rear camera → 640 px JPEG → POST /frames every 1000 ms, max 1 request in flight.
+const $ = (id) => document.getElementById(id);
+const video = $("video");
+const canvas = document.createElement("canvas");
+let sent = 0, fails = 0, lastOk = 0, inFlight = false, stalled = false;
+
+function fail(msg) {
+  $("error").textContent = msg;
+  $("error").hidden = false;
+}
+
+function setStalled(on) {
+  stalled = on;
+  $("state").className = on ? "stalled" : "live";
+  $("word").textContent = on ? "STALLED — check Wi-Fi/tunnel" : "LIVE";
+}
+
+async function post(blob) {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 3000);  // code-standards.md: camera POST timeout 3 s
+  const t0 = performance.now();
+  try {
+    const res = await fetch(`/frames?ts=${Date.now()}`, {
+      method: "POST", body: blob, headers: { "Content-Type": "image/jpeg" }, signal: ctrl.signal,
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    sent++; fails = 0; lastOk = Date.now();
+    $("sent").textContent = sent;
+    $("ms").textContent = Math.round(performance.now() - t0);
+  } catch {
+    fails++;
+  } finally {
+    clearTimeout(timer);
+    inFlight = false;
+    setStalled(fails >= 3 || Date.now() - lastOk > 3000);  // 3 failures in a row or no ack > 3 s
+  }
+}
+
+function tick() {
+  setTimeout(tick, stalled ? 2000 : 1000);  // schedule first so slow POSTs don't stretch the 1 s cadence
+  if (inFlight || !video.videoWidth) return;  // skip the tick while the previous POST is in flight
+  canvas.width = 640;
+  canvas.height = Math.round(640 * video.videoHeight / video.videoWidth);
+  canvas.getContext("2d").drawImage(video, 0, 0, canvas.width, canvas.height);
+  inFlight = true;
+  canvas.toBlob((blob) => (blob ? post(blob) : (inFlight = false)), "image/jpeg", 0.7);
+}
+
+$("start").onclick = async () => {
+  if (!navigator.mediaDevices?.getUserMedia) {
+    return fail("No camera on plain http. Open the https://….trycloudflare.com/camera URL.");
+  }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" }, audio: false });
+    // a stopped track would keep posting a frozen frame: reload back to "Tap to start camera" instead
+    stream.getVideoTracks()[0].addEventListener("ended", () => location.reload());
+    video.srcObject = stream;
+    await video.play();
+  } catch (e) {
+    return fail(e.name === "NotAllowedError" ? "Allow camera in Safari settings" : `Camera error: ${e.name}`);
+  }
+  navigator.wakeLock?.request("screen").catch(() => {});  // best effort; Auto-Lock Never is the real fix
+  $("start").hidden = $("error").hidden = true;
+  $("run").hidden = false;
+  lastOk = Date.now();
+  tick();
+};
+</script>

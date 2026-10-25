@@ -38,7 +38,7 @@
 | cloudflared in WSL; tunnel URL open on both iPhones over venue Wi-Fi | todo |
 | One frame embed timed on GPU (< 0.5 s) | todo |
 | Head strap/cap clip, power bank, Auto-Lock Never on both iPhones | todo |
-| VRAM total (`nvidia-smi`) — decides R8 backend | todo |
+| VRAM total (`nvidia-smi`) — decides R8 backend | done 15:55: RTX 2000 Ada Laptop, 8 GB (E4B bf16 won't fit; 4-bit ≈ 5 GB + EG2 ≈ 1.5 GB is tight) |
 
 ## Requirements (each owner edits only their rows)
 
