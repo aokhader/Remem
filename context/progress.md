@@ -6,8 +6,8 @@
 
 | Gate | Time | Pass when | Status | Checked |
 |---|---|---|---|---|
-| S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | wip | 15:47 committed on main locally, every endpoint curled on stub; LICENSE + push pending |
-| 1 | 3:15 | Aziz: Safari camera preview over the tunnel on venue Wi-Fi + one JPEG on disk · Daniel: one frame embedded on GPU < 0.5 s, "a photo of keys" ranks the keys photo 1st of 3 · Varick: ask page on 2nd iPhone sends a question, shows stub card from `GET /ask` · All: repo, LICENSE, README skeleton pushed, every stub live · PROPOSED items signed off | todo | |
+| S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | wip | 15:47 every endpoint curled on stub; pushed to main; LICENSE still missing |
+| 1 | 3:15 | Aziz: Safari camera preview over the tunnel on venue Wi-Fi + one JPEG on disk · Daniel: one frame embedded on GPU < 0.5 s, "a photo of keys" ranks the keys photo 1st of 3 · Varick: ask page on 2nd iPhone sends a question, shows stub card from `GET /ask` · All: repo, LICENSE, README skeleton pushed, every stub live · PROPOSED items signed off | wip | 16:02 Aziz part passed: camera iPhone → tunnel → frames on disk (29 frames, lag 0.1 s) |
 | S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | todo | |
 | 2 | 4:45 | Replayed day answers "where are my keys" correctly end to end. **No → cut R10, R11, R13 + R12 except its counter** | todo | |
 | — | 5:15 | z_min / z_act set from the 40-query test set | todo | |
@@ -35,17 +35,17 @@
 | `torch.cuda.is_bf16_supported()` = ? → dtype | todo |
 | pip install line (setup.md §1) | todo |
 | `google/embeddinggemma-2` download started | todo |
-| cloudflared in WSL; tunnel URL open on both iPhones over venue Wi-Fi | todo |
+| cloudflared in WSL; tunnel URL open on both iPhones over venue Wi-Fi | wip 16:02: cloudflared 2026.10.3 in WSL `~/.local/bin`; camera iPhone streaming; ask iPhone not tried |
 | One frame embed timed on GPU (< 0.5 s) | todo |
 | Head strap/cap clip, power bank, Auto-Lock Never on both iPhones | todo |
-| VRAM total (`nvidia-smi`) — decides R8 backend | todo |
+| VRAM total (`nvidia-smi`) — decides R8 backend | done 15:55: RTX 2000 Ada Laptop, 8 GB (E4B bf16 won't fit; 4-bit ≈ 5 GB + EG2 ≈ 1.5 GB is tight) |
 
 ## Requirements (each owner edits only their rows)
 
 | ID | Requirement (short) | Owner | Priority | Status | Notes |
 |---|---|---|---|---|---|
-| R1 | Camera page: rear camera, POST 640 px JPEG/s over HTTPS | Aziz | Must | todo | 15:47 placeholder page only |
-| R2 | Save JPEG to disk + SQLite row | Aziz | Must | wip | 15:47 `POST /frames` real, restart keeps ids; not yet over the tunnel |
+| R1 | Camera page: rear camera, POST 640 px JPEG/s over HTTPS | Aziz | Must | done | 16:02 iPhone over tunnel: 1.00 s median gap, 640×853 portrait, ~65 KB; leaving Safari pauses frames (20 s gap) and they resume on return with no tap; screen lock unverified |
+| R2 | Save JPEG to disk + SQLite row | Aziz | Must | done | 16:02 tunnel frames in `~/remem-data/spike`; restart keeps ids |
 | R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | todo | |
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
 | R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | stub | 15:47 `POST /replay` → failed "not implemented" |
@@ -83,8 +83,8 @@
 
 ## Aziz — capture, transport, ingest
 
-- **Now:** 15:47 S0 skeleton committed on main (local), all stubs live, ruff clean
-- **Next:** push S0 → LICENSE → R1 camera page over the tunnel (gate 1) → record the day + `ground_truth.csv` (S1)
+- **Now:** 16:02 R1 + R2 done: camera iPhone streams over the tunnel into the WSL server (`aziz/capture`)
+- **Next:** record the day + `ground_truth.csv` (S1, late) → queue + R5 replay + dashboard counter
 - **Blocked:** LICENSE has to be added on github.com (Apache-2.0 template), not typed
 
 ## Daniel — index and retrieval
