@@ -113,4 +113,5 @@ curl -s -X POST localhost:8000/replay -H 'Content-Type: application/json' -d '{"
 | Varick | `curl -s "localhost:8000/ask?q=where%20are%20my%20keys"` | Answer JSON, `band` act (stub) |
 | Varick | `curl -s "localhost:8000/ask?q=where%20is%20my%20passport"` | `band` none, `hit` null |
 | Varick | `/ask` on the ask iPhone over the tunnel | card renders, word + color |
+| Varick (R10) | open `/ask` once (warms the speech model, first load downloads `openai/whisper-small` ≈ 1 GB), then `curl -s -X POST --data-binary @clip.m4a localhost:8000/ask/voice` | `{"text": "Where are my keys?"}`; needs `ffmpeg` on PATH |
 | All | `ruff check . && pytest -q` | clean |

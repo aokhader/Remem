@@ -49,12 +49,12 @@
 | R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | wip | 16:01: backend implemented; 60 repeated-photo frames persisted in 7.79 s (7.70 fps), bf16; WSL/live recording validation pending |
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
 | R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | stub | 15:47 `POST /replay` → failed "not implemented" |
-| R6 | Ask page + object regex | Varick | Must | todo | |
+| R6 | Ask page + object regex | Varick | Must | wip | 15:41 built; 61 extract tests pass; checked in browser on stub index. Not yet on the iPhone over the tunnel |
 | R7 | Query embed, robust z, visits, bands | Daniel | Must | wip | 16:01: robust z, guards, merge-first/newest-10 and CLI implemented; 19 focused checks pass; real-day tuning pending |
-| R8 | Gemma 4 E4B double-check + spot line | Varick | Could | todo | only after rows 1–4 pass twice |
-| R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | todo | |
-| R10 | Push-to-talk, local speech model | Varick | Should | todo | cut if gate 2 fails |
-| R11 | Sighting timeline | Varick | Should | todo | row 5 fallback; cut if gate 2 fails |
+| R8 | Gemma 4 E4B double-check + spot line | Varick | Could | stub | 15:41 adapter + `none` backend only; real backends only after rows 1–4 pass twice |
+| R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | wip | 15:41 `/ask` → act/ask/none/error correct on stub index; card.js ready for the dashboard |
+| R10 | Push-to-talk, local speech model | Varick | Should | wip | 15:50 hold-to-talk + `POST /ask/voice` built; tested with whisper-tiny on Mac CPU (~0.3 s/clip). Not yet on an iPhone or with whisper-small on the GPU |
+| R11 | Sighting timeline | Varick | Should | wip | 15:41 in card.js ("Show older sightings"); needs real multi-visit hits to verify |
 | R12 | Projector dashboard | Aziz | Should | stub | counter needed for row 1; 15:47 placeholder page, `/status` real |
 | R13 | Moment recall | Daniel | Could | todo | cut if gate 2 fails |
 | R14 | Read answer aloud | Varick | Could | todo | |
@@ -96,6 +96,6 @@
 
 ## Varick — ask page, answer card, UI
 
-- **Now:**
-- **Next:** ask page + stub card on the 2nd iPhone (gate 1)
-- **Blocked:**
+- **Now:** 15:58 merged S0 into `varick-routing`; slice runs inside the real `remem.app` (stub index): `POST /frames` → `/ask` FOUND with that frame, voice works, ruff + 61 tests pass. Devshim copies removed. 15:50 R10 push-to-talk built (`remem/answer/stt.py`, `POST /ask/voice`, mic button). 15:41 slice built on branch `varick-answer`: `remem/answer/` (extract, pipeline, card, verify, routes), `static/ask.html` + `card.js` + `card.css`, `tests/test_extract.py`, draft `eval/test_set.csv`. Runs today via `spikes/varick/devshim/devserver.py` (stub index, placeholder frames).
+- **Next:** PR `varick-routing` → main · open `/ask` on the ask iPhone over the tunnel (gate 1 check, incl. holding the mic) · fill `test_set.csv` windows from `ground_truth.csv` (new `HH:MM:SS-end` format) · R14/R8 only after rows 1–4 pass twice.
+- **Blocked:** Daniel's `remem/index/gemma.py` — `config.py` defaults to `REMEM_INDEX=gemma`, so the app won't import until it lands; off-GPU use `REMEM_INDEX=stub`. `ground_truth.csv` (S1) for test windows.
