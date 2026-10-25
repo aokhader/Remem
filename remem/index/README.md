@@ -18,6 +18,20 @@ records in `(ts, id)` order, without re-embedding. A different stored model/imag
 budget or an invalid vector is an error; use a fresh data directory rather than
 mixing incompatible embeddings.
 
+R4 compares each normalized image vector to the last kept frame using
+`DEDUPE_COS` (default 0.98, inclusive). Duplicates persist as `status='dup'`,
+`dup_of=<kept id>`, with no vector; they do not enter the retrieval matrix.
+The comparison continues across batches and restarts and does not advance on
+duplicates or failed embeds. Older backfilled records are kept rather than
+compared against a future frame. Concurrent `add` calls are serialized.
+
+Capture timestamps and JPEGs stay unchanged: a returned frame's time remains its
+actual capture time. A long stationary run can therefore show the first kept
+frame's age. Dedupe reduces stored vectors and ranking work; it still encodes
+each incoming image. `MIN_FRAMES` counts kept vectors, so standing still alone
+may not build enough observations to enable retrieval. Calibrate thresholds
+on a fresh replay with dedupe enabled; old persisted vectors are not rewritten.
+
 A single worker and GPU lock serialize encode calls. At most one running and one
 queued call are admitted. Image batches have 5 s and queries 2 s, including GPU
 queue wait. Timed-out queued work is cancelled; a running kernel can finish, but
@@ -74,7 +88,7 @@ reload, failure vectors, float16 rejection, bounded batches, and late GPU result
 
 ```powershell
 $env:REMEM_INDEX='stub'
-spikes/daniel/.venv/Scripts/python -m pytest -q tests spikes/daniel/test_backend.py spikes/daniel/test_eval.py --basetemp=data/index-eval-check
+spikes/daniel/.venv/Scripts/python -m pytest -q tests spikes/daniel/test_backend.py spikes/daniel/test_eval.py spikes/daniel/test_dedupe.py --basetemp=data/index-eval-check
 
 # Real recording must already be replayed into this DATA_DIR; windows must be filled.
 $env:REMEM_INDEX='gemma'

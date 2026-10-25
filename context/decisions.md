@@ -93,6 +93,9 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | 16:12 | Sweep uses production score/robust-z/visit functions; one query encode per find row, candidates z >= 1.5 logged locally; search grid 0.25, zero false-found first | Avoid calibration drift, reject infeasible thresholds honestly, and never use in-process timing as HTTP latency. No config or .env edits. | Daniel |
 | 16:12 | Keep all 3 final README numbers pending; isolate 40-request localhost smoke on the 3-photo database as diagnostic only | Draft has 28 present + 4 recall windows blank and no real recording; MIN_FRAMES suppresses search on 3 photos. No invented ground truth or demo accuracy claims. | Daniel |
 
+| 16:42 | R4 compares normalized image cosine to the last kept vector with inclusive DEDUPE_COS; persist dup_of with no vector, serialize add calls, restore anchor from stored matrix | Prevent gradual drift through discarded frames and keep behavior consistent across batches/restarts. Older backfills are retained instead of matched to future captures. | Daniel |
+| 16:42 | R4 preserves all frame timestamps/JPEGs and keeps first-frame age during a stationary run; calibrate on a fresh deduplicated replay | Frame-table writes belong to capture; changing a timestamp without changing its JPEG would misstate the shown frame's capture time. MIN_FRAMES counts kept vectors. Final metrics remain pending real recording/reference windows. | Daniel |
+
 ## Log — Varick
 
 | Time | Decision | Why | Who |
