@@ -66,6 +66,11 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | Time | Decision | Why | Who |
 |---|---|---|---|
 | 15:39 | spec.md consistency pass: wrote P4, P6, P8, P10, P12, P16, P18, P20, P24, P26 into the spec; find-query windows now run from the last placement/move to `end`; recall band = Act if any stretch, else None; privacy line = "stored and searched only on this laptop". Owners still sign off their P items at gate 1 | Spec contradicted itself and the context folder; frames do leave via the answer card and Cloudflare's edge | Aziz |
+| 15:47 | ruff `I001` ignored for `remem/contracts.py` only | Keeps it a verbatim copy of contracts.md (no blank line between imports) | Aziz |
+| 15:47 | `config.py` defaults = `.env.example` values, so `REMEM_INDEX` defaults to `gemma`; off-GPU dev sets `REMEM_INDEX=stub` | One source of defaults | Aziz |
+| 15:47 | `/status` counters come from SQLite on every poll (`COUNT`, `SUM(dropped)`, last row), no in-memory counters | Restarts keep the counter; no extra state | Aziz |
+| 15:47 | Placeholder `static/camera.html`, `dashboard.html`, `ask.html` at S0 | `GET /`, `/camera`, `/ask` return 200 before the real pages land | Aziz |
+| 15:47 | Fixture values not given in contracts.md were filled in: recall Moment 14:47:00–14:49:30 PDT, `frame_ids` 1172/1222/1272/1322, `peak_z` 5.0; error fixture reuses the none fixture's passport question | Illustrative only, consistent with the act fixture's 2:41 PM clock | Aziz |
 
 ## Log — Daniel
 

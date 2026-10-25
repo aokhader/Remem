@@ -6,7 +6,7 @@
 
 | Gate | Time | Pass when | Status | Checked |
 |---|---|---|---|---|
-| S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | todo | |
+| S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | wip | 15:47 committed on main locally, every endpoint curled on stub; LICENSE + push pending |
 | 1 | 3:15 | Aziz: Safari camera preview over the tunnel on venue Wi-Fi + one JPEG on disk · Daniel: one frame embedded on GPU < 0.5 s, "a photo of keys" ranks the keys photo 1st of 3 · Varick: ask page on 2nd iPhone sends a question, shows stub card from `GET /ask` · All: repo, LICENSE, README skeleton pushed, every stub live · PROPOSED items signed off | todo | |
 | S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | todo | |
 | 2 | 4:45 | Replayed day answers "where are my keys" correctly end to end. **No → cut R10, R11, R13 + R12 except its counter** | todo | |
@@ -44,18 +44,18 @@
 
 | ID | Requirement (short) | Owner | Priority | Status | Notes |
 |---|---|---|---|---|---|
-| R1 | Camera page: rear camera, POST 640 px JPEG/s over HTTPS | Aziz | Must | todo | |
-| R2 | Save JPEG to disk + SQLite row | Aziz | Must | todo | |
+| R1 | Camera page: rear camera, POST 640 px JPEG/s over HTTPS | Aziz | Must | todo | 15:47 placeholder page only |
+| R2 | Save JPEG to disk + SQLite row | Aziz | Must | wip | 15:47 `POST /frames` real, restart keeps ids; not yet over the tunnel |
 | R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | todo | |
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
-| R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | todo | |
+| R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | stub | 15:47 `POST /replay` → failed "not implemented" |
 | R6 | Ask page + object regex | Varick | Must | todo | |
 | R7 | Query embed, robust z, visits, bands | Daniel | Must | todo | |
 | R8 | Gemma 4 E4B double-check + spot line | Varick | Could | todo | only after rows 1–4 pass twice |
 | R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | todo | |
 | R10 | Push-to-talk, local speech model | Varick | Should | todo | cut if gate 2 fails |
 | R11 | Sighting timeline | Varick | Should | todo | row 5 fallback; cut if gate 2 fails |
-| R12 | Projector dashboard | Aziz | Should | todo | counter needed for row 1 |
+| R12 | Projector dashboard | Aziz | Should | stub | counter needed for row 1; 15:47 placeholder page, `/status` real |
 | R13 | Moment recall | Daniel | Could | todo | cut if gate 2 fails |
 | R14 | Read answer aloud | Varick | Could | todo | |
 | R15 | Blur faces before save | Aziz | Could | todo | |
@@ -83,9 +83,9 @@
 
 ## Aziz — capture, transport, ingest
 
-- **Now:**
-- **Next:** S0 skeleton → camera page over tunnel (gate 1)
-- **Blocked:**
+- **Now:** 15:47 S0 skeleton committed on main (local), all stubs live, ruff clean
+- **Next:** push S0 → LICENSE → R1 camera page over the tunnel (gate 1) → record the day + `ground_truth.csv` (S1)
+- **Blocked:** LICENSE has to be added on github.com (Apache-2.0 template), not typed
 
 ## Daniel — index and retrieval
 
