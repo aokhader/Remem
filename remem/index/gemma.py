@@ -23,6 +23,7 @@ _local = threading.local()
 _gpu_lock = threading.Lock()
 _state_lock = threading.RLock()
 _load_lock = threading.Lock()
+_add_lock = threading.Lock()
 _worker = ThreadPoolExecutor(max_workers=1, thread_name_prefix="remem-embed")
 # At most one running call and one queued call. Timed-out kernels retain their slot
 # until completion; no unbounded GPU queue or late writes to SQLite/the matrix.
@@ -106,6 +107,8 @@ def load() -> None:
         raise ValueError("Never float16: use auto, bfloat16, or float32")
     if config.EMBED_BATCH < 1:
         raise ValueError("EMBED_BATCH must be positive")
+    if not np.isfinite(config.DEDUPE_COS) or not -1 <= config.DEDUPE_COS <= 1:
+        raise ValueError("DEDUPE_COS must be finite and between -1 and 1")
     with _load_lock:
         if _model is None:
             os.environ["HF_HUB_OFFLINE"] = "1"
@@ -180,6 +183,37 @@ def _persist(results: list[AddResult], vectors: dict[int, np.ndarray]) -> None:
 
 
 def add(records: list[FrameRecord]) -> list[AddResult]:
+    # Keep comparison + persistence ordered across concurrent ingest callers.
+    with _add_lock:
+        return _add(records)
+
+
+def _deduplicate(
+    records: list[FrameRecord], results: list[AddResult], vectors: dict[int, np.ndarray],
+) -> None:
+    """Compare with the last kept frame, never a discarded intermediate frame.
+
+    Older/backfilled records are retained rather than matched to a future frame.
+    Capture timestamps and JPEGs remain owned by the frame store.
+    Caller holds the state lock through persistence.
+    """
+    last = _records[-1] if _records else None
+    vector = _matrix[-1] if _records else None
+    by_id = {result.frame_id: result for result in results}
+    for record in sorted(records, key=lambda row: (row.ts, row.id)):
+        if record.id not in vectors:
+            continue
+        current = vectors[record.id]
+        newer = last is None or (record.ts, record.id) > (last.ts, last.id)
+        if newer and vector is not None and float(current @ vector) >= config.DEDUPE_COS:
+            result = by_id[record.id]
+            result.status, result.dup_of = "dup", last.id
+            del vectors[record.id]
+        elif newer:
+            last, vector = record, current
+
+
+def _add(records: list[FrameRecord]) -> list[AddResult]:
     if _model is None:
         raise RuntimeError("Call index.load() before add()")
     results = []
@@ -213,11 +247,16 @@ def add(records: list[FrameRecord]) -> list[AddResult]:
                 vectors = {r.id: vector for r, vector in zip(valid, encoded, strict=True)}
                 with _state_lock:
                     _samples.append(per_frame)
-                _log.info("embed batch=%d embed_ms=%.2f dup=0 failed=0", len(valid), elapsed_ms)
             except Exception:
                 _log.exception("embed batch=%d failed", len(valid))
                 batch_results.extend(AddResult(frame_id=r.id, status="failed") for r in valid)
-        _persist(batch_results, vectors)
+        with _state_lock:
+            _deduplicate(batch, batch_results, vectors)
+            _persist(batch_results, vectors)
+        _log.info("embed batch=%d embed_ms=%.2f dup=%d failed=%d", len(batch),
+                  sum(r.embed_ms or 0 for r in batch_results),
+                  sum(r.status == "dup" for r in batch_results),
+                  sum(r.status == "failed" for r in batch_results))
         by_id = {r.frame_id: r for r in batch_results}
         results.extend(by_id[r.id] for r in batch)
     return results
