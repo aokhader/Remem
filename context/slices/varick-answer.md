@@ -6,7 +6,7 @@
 |---|---|---|---|
 | R6 | Ask page (text box + iOS dictation) + object regex | Must | 2–5 |
 | R9 | Answer card: frame, "N min ago · clock", band; "I haven't seen your X" | Must | 2–4 |
-| R11 | Sighting timeline (every candidate visit on a time strip) | Should | 5 fallback |
+| R11 | Sighting timeline (10 newest candidate visits on a time strip) | Should | 5 fallback |
 | R10 | Push-to-talk, transcribed locally (PROPOSED `openai/whisper-small`) | Should | 2 (nice) |
 | R14 | Read the answer aloud on the ask iPhone (`speechSynthesis`) | Could | — |
 | R8 | Gemma 4 E4B double-check + spot line | Could | 2, 3 |

@@ -20,7 +20,7 @@ Link: https://shaneco.com/theloupe/articles-and-news/stuff-each-state-loses-the-
 |---|---|---|
 | Wearer | Wears the camera iPhone on the forehead (rear camera forward), moves normally | No — that phone only streams |
 | Asker | Asks "where is my X?" on the ask iPhone by dictation or typing | Yes — the answer card |
-| Bystanders | Appear in frames without asking | No — which is why frames never leave the laptop |
+| Bystanders | Appear in frames without asking | No — which is why frames are stored only on the laptop |
 | Judges | Judge A hides sunglasses (row 3); Judge B asks for a passport (row 4) | Ask iPhone + projected dashboard |
 
 ## Goals (each maps to a demo row)
@@ -54,7 +54,7 @@ Link: https://shaneco.com/theloupe/articles-and-news/stuff-each-state-loses-the-
 2. Ingest saves JPEG + SQLite row (R2) and queues it; the index embeds it (R3).
 3. Asker types/dictates "Where are my keys?" on `/ask` (R6).
 4. Server extracts `keys`, embeds "a photo of keys" with `prompt_name="SearchQuery"`.
-5. Rank: cosine vs every frame → robust z → top 10 with z ≥ z_min → merge visits < 5 s apart (R7).
+5. Rank: cosine vs every frame → robust z → keep z ≥ z_min → merge visits < 5 s apart (R7).
 6. Decide: newest visit; z ≥ z_act → Act, else Ask (R7).
 7. Card: frame + "12 min ago · 2:41 PM" + band in words (R9); dashboard shows the same card (R12).
 
@@ -86,7 +86,7 @@ Link: https://shaneco.com/theloupe/articles-and-news/stuff-each-state-loses-the-
 | Term | Meaning |
 |---|---|
 | Frame | One 640 px JPEG from the camera iPhone (or replay), with a server timestamp; a row in `frames` |
-| Candidate | A frame with z ≥ z_min that made the top 10 for a query |
+| Candidate | A frame with z ≥ z_min for a query |
 | Sighting / visit | Candidates < 5 s apart merged into one visit; keeps the higher score. A sighting = one visit |
 | z-score | z_i = (s_i − median(s)) / (1.4826 · MAD(s)) over all frames' cosine scores s for one query |
 | z_min | Lowest z that counts as a candidate. Starts at 3; set from the test set 4:45–5:15 |

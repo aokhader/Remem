@@ -36,7 +36,7 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | P1 | Aziz ships the S0 skeleton and owns `app.py`, `config.py`, `pyproject.toml`; `contracts.py` frozen at gate 1 | architecture.md | All |
 | P2 | Repo layout + module names (`remem/capture`, `remem/index`, `remem/answer`, `static/`, `eval/`, `spikes/<name>/`) | architecture.md | All |
 | P3 | `index.search` returns **merged visits, newest first**, `SearchHit` fields as written | contracts.md | Daniel, Varick |
-| P4 | Retrieval order = spec as written (top 10 frames → merge). Risk: a long older visit can fill all 10 slots and hide the newest one. Alternative: merge first, then top 10 visits | architecture.md | Daniel |
+| P4 | Retrieval order: all frames with z ≥ z_min → merge into visits → keep the 10 newest visits (spec updated 15:39; top-10-frames-first let a long older visit hide the newest) | spec.md, architecture.md | Daniel |
 | P5 | `decide(hits, verdicts)` lives in Daniel's slice and implements the R8 branch too; Varick only produces Verdicts | contracts.md | Daniel, Varick |
 | P6 | `verify_many(frame_paths, obj)` batch form next to the spec's `verify(frame_path, object)` | contracts.md | Varick |
 | P7 | `POST /frames` = raw JPEG body + `?ts=<ms>` (no multipart, no python-multipart dep) | contracts.md | Aziz |
@@ -65,6 +65,7 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 
 | Time | Decision | Why | Who |
 |---|---|---|---|
+| 15:39 | spec.md consistency pass: wrote P4, P6, P8, P10, P12, P16, P18, P20, P24, P26 into the spec; find-query windows now run from the last placement/move to `end`; recall band = Act if any stretch, else None; privacy line = "stored and searched only on this laptop". Owners still sign off their P items at gate 1 | Spec contradicted itself and the context folder; frames do leave via the answer card and Cloudflare's edge | Aziz |
 
 ## Log — Daniel
 

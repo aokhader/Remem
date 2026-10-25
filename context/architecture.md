@@ -12,12 +12,12 @@ Camera iPhone (forehead, Safari, rear camera)   ┃
 Replay (R5): day.mp4 at 1 fps ─────────────────▶┃ Ingest      (bypass: no phone, no tunnel)
 ASK                                             ┃
 Ask iPhone (Safari /ask) ─ GET /ask?q= ─ tunnel▶┃ Question → object (regex) → EG2 text embed "a photo of {X}", SearchQuery
-                                                ┃ → Rank: cos vs every frame, robust z, top 10 z ≥ z_min, merge < 5 s
+                                                ┃ → Rank: cos vs every frame, robust z, z ≥ z_min, merge < 5 s, 10 newest visits
                                                 ┃ → Decide: newest candidate; its z → Act / Ask / None
                                                 ┃ ⇢ [R8, dashed] Gemma 4 E4B: 5 newest, one GPU batch → present/confidence/where
 Ask iPhone ◀──────── Answer card ─── tunnel ────┃◀ Answer card ─▶ Dashboard (localhost, projector)
 ```
-Only JPEGs in and answer cards out cross the tunnel. No vector, no frame store, no matrix ever leaves.
+Only JPEGs in and answer cards out cross the tunnel. No vector, no frame store, no matrix ever leaves. The tunnel's HTTPS ends at Cloudflare's edge, so say "stored and searched only on this laptop", never "no frame left it".
 
 ## Repo layout and file ownership (one owner per file — this is what makes the slices parallel)
 
@@ -101,8 +101,9 @@ Remem/
 ```
 s_i = cos(e_q, f_i)  (= dot product; both are normalized, 768-d)
 z_i = (s_i − median(s)) / (1.4826 · MAD(s)),   MAD(s) = median(|s_i − median(s)|)
-C   = top_10 { i : z_i ≥ z_min }     z_min = 3 to start
+C   = { i : z_i ≥ z_min }     z_min = 3 to start
 visits: sort C by ts; consecutive frames < 5 s apart → one visit, keep the higher-scoring frame
+return the 10 newest visits (merge first: the 10 best frames can all sit in one older visit)
 query text: "a photo of {X}" with prompt_name="SearchQuery"; images: {"image": ...}, no prefix
 ```
 PROPOSED edge cases: fewer than `MIN_FRAMES` (30) embedded → return `[]` · MAD = 0 → return `[]`.
@@ -130,7 +131,7 @@ def verify(frame_path: str, obj: str) -> Verdict | None   # spec name; = verify_
 | `none` (default) | — | 0 | Always until rows 1–4 pass twice |
 | `e4b-bf16` | `google/gemma-4-E4B-it` | ~15 GB + EG2 ~1.5 GB | VRAM allows |
 | `e4b-4bit` | same, bitsandbytes 4-bit | ~5 GB | VRAM short |
-| `e2b` | Gemma 4 E2B (PROPOSED id `google/gemma-4-E2B-it`; check HF) | smaller | still short |
+| `e2b` | Gemma 4 E2B (PROPOSED; `google/gemma-4-E2B-it` exists on HF, Apache-2.0) | smaller | still short |
 
 Image before text; `enable_thinking=False`; JSON-only reply; one batch for the newest `VERIFY_N` (5; 3 if slow).
 
@@ -157,7 +158,7 @@ Freshness (row 3): frame seen → searchable ≤ 3 s (1 s capture + upload + ≤
 | Safari camera | `navigator.mediaDevices` undefined (HTTP) or permission denied | Always the HTTPS tunnel URL; record in Camera app (Most Compatible) → AirDrop → replay | Aziz |
 | Safari backgrounded / locked | ingest lag ≥ 3 s on dashboard | Auto-Lock Never, Safari in front; tap page to restart stream | Aziz |
 | Embed speed (R3) | `embed_ms` p50 > 1,000 or backlog growing | image budget 70 tokens; embed every 2nd frame; R4 dedupe | Daniel |
-| Small objects don't rank | keys not in top 10 on test set | bright keychain; 560-token image budget; lower z_min | Daniel |
+| Small objects don't rank | keys below z_min on test set | bright keychain; 560-token image budget; lower z_min | Daniel |
 | GPU memory (R8) | OOM on load or `nvidia-smi` | e4b-4bit → e2b → `VERIFY_BACKEND=none` | Varick |
 | R8 JSON parse / latency | parse error; verify > 2.5 s | parse error = not present; verify 3 newest; timeout → z-only bands | Varick |
 | Server crash mid-demo | `/status` unreachable | restart uvicorn; index reloads from `embeddings` table (no re-embed); phones reload same tunnel URL | Aziz |

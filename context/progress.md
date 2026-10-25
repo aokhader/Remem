@@ -9,7 +9,7 @@
 | S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | todo | |
 | 1 | 3:15 | Aziz: Safari camera preview over the tunnel on venue Wi-Fi + one JPEG on disk · Daniel: one frame embedded on GPU < 0.5 s, "a photo of keys" ranks the keys photo 1st of 3 · Varick: ask page on 2nd iPhone sends a question, shows stub card from `GET /ask` · All: repo, LICENSE, README skeleton pushed, every stub live · PROPOSED items signed off | todo | |
 | S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | todo | |
-| 2 | 4:45 | Replayed day answers "where are my keys" correctly end to end. **No → cut R10–R13** | todo | |
+| 2 | 4:45 | Replayed day answers "where are my keys" correctly end to end. **No → cut R10, R11, R13 + R12 except its counter** | todo | |
 | — | 5:15 | z_min / z_act set from the 40-query test set | todo | |
 | 3 | 6:00 | Code freeze; then backup video 6:00–6:10, submit 6:10–6:15 (closes 6:30) | todo | |
 
@@ -50,7 +50,7 @@
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
 | R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | todo | |
 | R6 | Ask page + object regex | Varick | Must | todo | |
-| R7 | Query embed, robust z, top 10, bands | Daniel | Must | todo | |
+| R7 | Query embed, robust z, visits, bands | Daniel | Must | todo | |
 | R8 | Gemma 4 E4B double-check + spot line | Varick | Could | todo | only after rows 1–4 pass twice |
 | R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | todo | |
 | R10 | Push-to-talk, local speech model | Varick | Should | todo | cut if gate 2 fails |
