@@ -7,18 +7,17 @@ POST /ask/voice    → {"text": str} from a push-to-talk clip (R10); the audio i
 """
 
 import logging
-from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.concurrency import run_in_threadpool
 from fastapi.responses import FileResponse
 
+from remem import config
 from remem.answer import pipeline, stt
 from remem.contracts import Answer
 
 log = logging.getLogger("remem.answer")
 
-STATIC_DIR = Path(__file__).resolve().parents[2] / "static"
 MAX_AUDIO_BYTES = 2_000_000  # ~15 s of Safari AAC is far below this
 
 router = APIRouter()
@@ -28,7 +27,7 @@ router = APIRouter()
 def ask(q: str | None = None) -> FileResponse | Answer:
     if q is None:
         stt.warm()
-        return FileResponse(STATIC_DIR / "ask.html", headers={"Cache-Control": "no-store"})
+        return FileResponse(config.ROOT / "static/ask.html", headers={"Cache-Control": "no-store"})
     return pipeline.ask(q)
 
 

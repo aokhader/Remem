@@ -51,7 +51,8 @@ def load() -> None:
             # transformers 5 defaults to dtype="auto" (the checkpoint's); pin float32 so it's predictable.
             _asr = pipeline("automatic-speech-recognition", model=config.STT_MODEL, device=device,
                             dtype=torch.float32)
-        except Exception as exc:  # missing packages in stub mode, download failure, OOM
+        # stub mode (no torch), download/disk errors, CUDA OOM, bad STT_MODEL
+        except (ImportError, OSError, RuntimeError, ValueError) as exc:
             _load_error = f"{type(exc).__name__}: {exc}"
             log.warning("stt unavailable model=%s: %s", config.STT_MODEL, _load_error)
             return

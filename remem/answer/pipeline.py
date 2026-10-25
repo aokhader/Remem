@@ -9,7 +9,6 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 from concurrent.futures import TimeoutError as FutureTimeout
-from pathlib import Path
 
 from remem import config, index
 from remem.answer.card import ASK_HINT, error_answer, find_answer, recall_answer
@@ -36,7 +35,7 @@ def _verdicts(hits: list[SearchHit], obj: str, timings: dict[str, float]) -> dic
     if verifier.name == "none" or not hits:
         return None
     newest = hits[: config.VERIFY_N]
-    paths = [str(Path(config.REMEM_DATA_DIR) / h.path) for h in newest]
+    paths = [str(config.DATA_DIR / h.path) for h in newest]
     start = time.perf_counter()
     try:
         results = _verify_pool.submit(verifier.verify_many, paths, obj).result(

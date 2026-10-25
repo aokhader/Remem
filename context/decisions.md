@@ -95,6 +95,9 @@ Each PROPOSED item below is a concrete choice where the spec is silent. Owner sa
 | 15:50 | Clips quieter than RMS 0.003 or shorter than 0.25 s are rejected (`422`) instead of transcribed | Whisper invents "Thank you." on silence | Varick |
 | 15:50 | Added a `listening` state to the ask page (R10) | ui.md listed none for push-to-talk | Varick |
 | 15:50 | Contract change (my endpoint): `POST /ask/voice` now lists its error codes 400/413/422/503/504; added an R10 smoke row to setup.md | Clients need to tell "type instead" from "try again" | Varick |
+| 15:58 | Merged S0 into `varick-routing`; my real `remem/answer/*` and `static/ask.html` replace the S0 placeholders; devshim copies of contracts/config/index deleted (devserver now uses the real package with `REMEM_INDEX=stub`) | S0 landed; one copy of each shared file | Varick |
+| 15:58 | Config API confirmed by S0: module constants. Only change needed: `config.DATA_DIR` (absolute Path) instead of `REMEM_DATA_DIR` | Matches Aziz's config.py | Varick |
+| 15:58 | `remem.answer` loads `ask`/`latest` lazily (module `__getattr__`) | `config.py` defaults to `REMEM_INDEX=gemma`, which doesn't exist yet; `test_extract.py` shouldn't need any index backend | Varick |
 
 ## Log — Team (gate decisions, cuts, cutoffs)
 
