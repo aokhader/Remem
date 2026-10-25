@@ -46,11 +46,11 @@
 |---|---|---|---|---|---|
 | R1 | Camera page: rear camera, POST 640 px JPEG/s over HTTPS | Aziz | Must | done | 16:02 iPhone over tunnel: 1.00 s median gap, 640×853 portrait, ~65 KB; leaving Safari pauses frames (20 s gap) and they resume on return with no tap; screen lock unverified |
 | R2 | Save JPEG to disk + SQLite row | Aziz | Must | done | 16:02 tunnel frames in `~/remem-data/spike`; restart keeps ids |
-| R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | todo | |
+| R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | wip | 16:01: backend implemented; 60 repeated-photo frames persisted in 7.79 s (7.70 fps), bf16; WSL/live recording validation pending |
 | R4 | Skip near-duplicate frames | Daniel | Should | todo | |
 | R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | done | 16:16 ffmpeg pipe, blocking put: synthetic 20 s rotated 1080p video → 20/20 frames, 0 dropped (queue max 2), ts 1 s apart from `start_clock`, 640×1138 portrait; 400 bad input, 409 while running. Real `day.mp4` not run yet |
 | R6 | Ask page + object regex | Varick | Must | wip | 15:41 built; 61 extract tests pass; checked in browser on stub index. Not yet on the iPhone over the tunnel |
-| R7 | Query embed, robust z, visits, bands | Daniel | Must | todo | |
+| R7 | Query embed, robust z, visits, bands | Daniel | Must | wip | 16:12: decision table and evaluator implemented; 117 combined checks pass; real-day accuracy/threshold tuning pending |
 | R8 | Gemma 4 E4B double-check + spot line | Varick | Could | stub | 15:41 adapter + `none` backend only; real backends only after rows 1–4 pass twice |
 | R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | wip | 15:41 `/ask` → act/ask/none/error correct on stub index; card.js ready for the dashboard |
 | R10 | Push-to-talk, local speech model | Varick | Should | wip | 15:50 hold-to-talk + `POST /ask/voice` built; tested with whisper-tiny on Mac CPU (~0.3 s/clip). Not yet on an iPhone or with whisper-small on the GPU |
@@ -76,9 +76,9 @@
 
 | Metric | Value | Run time |
 |---|---|---|
-| Latest-sighting accuracy (28 queries) | | |
-| False-found count (8 never-seen) | | |
-| Median seconds per answer (localhost) | | |
+| Latest-sighting accuracy (28 queries) | Pending: reference windows/real recording missing | 16:12 |
+| False-found count (8 never-seen) | Pending: evaluate real replay, not 3-photo diagnostic | 16:12 |
+| Median seconds per answer (localhost) | Pending: full replay HTTP run | 16:12 |
 | Chosen z_min / z_act | 3 / 5 (placeholders) | |
 
 ## Aziz — capture, transport, ingest
@@ -89,9 +89,13 @@
 
 ## Daniel — index and retrieval
 
-- **Now:**
-- **Next:** EG2 embed spike (gate 1)
-- **Blocked:**
+- **Gate 1 evidence:** 15:38 — Gate 1 model spike passed locally on Windows, RTX 4070 Laptop GPU (8188 MiB). `torch.cuda.is_bf16_supported() = True`; selected and actual parameter dtype `torch.bfloat16` (never float16). EG2 revision `914f7f89142e33e77833254d9c9b90c3cef7303b`; text + vision only, audio disabled; 280 image tokens; finite 768-d vectors, normalized again in float32 after bf16 rounding. Installed API signatures/source and model card checked before calls: torch 2.6.0+cu118, sentence-transformers 6.2.0, transformers 5.20.2. Offline cached model load 3.44 s. One untimed warm-up, then five synchronized single-image embeds of `closekey.jpeg`: 132.98, 129.96, 123.04, 123.50, 121.69 ms; **median 123.50 ms (< 500 ms)**, excluding load/JPEG decoding. `a photo of keys`, `prompt_name="SearchQuery"`: **closekey.jpeg #1 (0.709398), farkey.jpeg #2 (0.666007), nokey.jpeg #3 (0.563592)**. Scores are diagnostic only. Query A/B: question/photo/mean-of-three × with/without SearchQuery all rank close/far/no keys; no accuracy winner on 3 photos, retain baseline. Reproducible scripts/results summary in `spikes/daniel/`.
+- **Now:** 16:01 — Step 2 complete on Windows CUDA: main skeleton/spec fixes merged; `gemma.py`, `rank.py`, `cli.py` implemented behind the existing facade. Offline text/vision model; one bounded GPU worker/lock; <= EMBED_BATCH images, 5 s image / 2 s query timeout; float32 LE SQLite vectors; restart rebuild in frame-time order without re-embedding. New spec P4 followed: merge all z-qualified candidates first, then newest 10 visits. CLI smoke median 123.26 ms; close/far/no-key ranking. `add-folder test_photos --start 15:30:00`: 3/3 embedded, 0 failed, replay timestamps 15:30:00/01/02, 0.946 s total. Fresh-process `cli search` returned close-key frame 1 at 15:30:00 with score 0.709327, z 0.674491, band ask, using explicit small-fixture overrides MIN_FRAMES=3/Z_MIN=0.5; production MIN_FRAMES=30/Z_MIN=3 correctly returns none on 3 photos. Throughput fixture: supplied 3 photos repeated 20 times (not new observations), 60/60 embedded, 0 failed, 7.791 s including saves/decoding/SQLite/matrix updates excluding load = 7.70 fps. 19 focused tests and ruff pass; stub imports no torch/ST; stub app POST /frames and GET /status return 200, passport query none. Details in `remem/index/README.md` and `spikes/daniel/step2-results.md`.
+- **Step 3:** 16:12 — `decide.py` implements z-only/newest-wins plus supplied-verdict confidence rows, VERIFY_N, negative/missing verdicts, and None timeout fallback; 20 table/boundary tests. `eval/run_testset.py` defaults to bounded localhost-only HTTP GET /ask, scores find/never-seen/recall separately, counts errors, preserves missing windows, supports local date and HH:MM:SS-end. `--sweep` caches find-query scores, logs every frame z >= 1.5, shares production robust-z/merge logic, sweeps 0.25 grid with zero false-found/zero wrong Act/90% retention rules and reports infeasibility. 117 combined checks and ruff pass. Actual localhost:8001 diagnostic completed all 40 draft requests with zero errors on 3-photo database; final metrics not claimed from that guard-only run. `eval/results/summary.md` contains pending final metrics and diagnostic context.
+- **Integration:** 16:19 — Merged origin/main capture updates; resolved progress conflict by keeping Aziz's completed R1/R2 rows and Daniel's R3 evidence. Incoming camera implementation retained unchanged. 117 tests and ruff pass. Local stub integration: camera route 200, POST frame and exact JPEG retrieval 200, ingest worker indexed the saved frame, keys answer selected it, passport returned none. No new iPhone/tunnel or live GPU validation claimed.
+- **Query A/B:** Bare `keys` tested against `a photo of keys` on original 3 photos, same SearchQuery/bf16/280-token image vectors. Both rank close/far/no keys. Bare scores 0.742602/0.705263/0.622002; photo scores 0.709398/0.666007/0.563592. Weaker-positive/background gap 0.083261 vs 0.102415; no benefit from bare keys on this fixture. Template unchanged; see `spikes/daniel/query-ab-results.md`.
+- **Next:** 16:12 — Replay real recording; Varick fills expected windows from ground_truth.csv; run sweep, apply selected Z_MIN/Z_ACT, restart and run HTTP evaluation, then visually inspect 28 returned frames. R4 remains a later Should; R13 remains gated.
+- **Blocked:** 16:12 — No decision/eval code blocker. Final 3 README numbers and calibrated thresholds await real recording/reference windows (28 present and 4 recall windows blank on main). WSL validation pending. Before any real R8 activation, Varick's `_verdicts()` must preserve completed empty mappings (`{}`) instead of converting them to None (timeout/no-verifier fallback); answer files were not modified in this step.
 
 ## Varick — ask page, answer card, UI
 

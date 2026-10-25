@@ -1,5 +1,6 @@
 """Frame store (R2): JPEG on disk + a `frames` row in DATA_DIR/remem.db (schema: context/data.md)."""
 
+import math
 import sqlite3
 import threading
 import time
@@ -35,9 +36,11 @@ def frame_path(frame_id: int) -> str:
     return f"frames/{frame_id:06d}.jpg"
 
 
-def save(frame: Frame, ts: float | None = None) -> FrameRecord:
-    conn = _conn()
-    ts = time.time() if ts is None else ts  # live: server receive time; replay: start_clock + offset (P10)
+def save(frame: Frame, *, ts: float | None = None) -> FrameRecord:
+    """Use receive time for live frames, or an explicit recording timestamp for replay."""
+    if ts is not None and (frame.source != "replay" or not math.isfinite(ts)):
+        raise ValueError("An explicit finite timestamp is only valid for replay frames")
+    conn, ts = _conn(), time.time() if ts is None else ts
     with conn:  # one transaction: a failed JPEG write leaves no row
         fid = conn.execute("INSERT INTO frames (ts, client_ts, path, source) VALUES (?, ?, '', ?)",
                            (ts, frame.client_ts, frame.source)).lastrowid
