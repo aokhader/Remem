@@ -21,6 +21,13 @@ Demo laptop (WSL2 + NVIDIA GPU), the cloudflared tunnel and the phones: [context
 | `http://localhost:8000/` | Dashboard (projector) |
 | `https://<tunnel>/camera` | Camera page (forehead iPhone) |
 | `https://<tunnel>/ask` | Ask page (second iPhone) |
+| `https://<tunnel>/memories` | Add camera-roll photos so `/ask` searches them too |
+
+## State (Oct 25, 6:30 PM)
+
+Working end to end on the demo laptop: live iPhone camera → tunnel → laptop, replay of recorded MP4s, EmbeddingGemma 2 indexing with near-duplicate skip, the ask page with act / ask / none answer cards and top-5 match thumbnails, the projector dashboard, and memories (checked on an iPhone).
+
+Not done yet: z_min / z_act tuned from the 40-query test set (numbers below are blank), the Gemma 4 double-check (R8, `VERIFY_BACKEND=none` only), moment recall (R13), read-aloud (R14), face blur (R15). Cards for photos older than a day read "N h ago" with no date.
 
 ## Models
 
@@ -42,7 +49,13 @@ Demo laptop (WSL2 + NVIDIA GPU), the cloudflared tunnel and the phones: [context
 
 ## Capture, transport, ingest (Aziz)
 
-TODO
+Three ways frames get in, all into the same JPEG-on-disk + SQLite store and one ingest queue that feeds the index:
+
+- **Live** (`/camera` → `POST /frames`): the rear camera sends a 640 px JPEG 5 times a second (trial; spec says 3), one request in flight. Stamped with the laptop's receive time. When the queue is full the oldest queued frame is dropped and counted, never the newest.
+- **Replay** (`POST /replay`): ffmpeg pulls 3 frames/s from an MP4 in `data/videos/`, stamped from the recording's start clock. Never drops.
+- **Memories** (`/memories` → `POST /memories`): pick photos from the iPhone's library. Each photo is shrunk to 1280 px and dated by its EXIF capture time (else the file time), so "where are my keys" can answer with a photo from last week. Newest still wins: a live sighting beats an older photo.
+
+`GET /status` feeds the dashboard counters (received, dropped, queue depth, ingest lag → LIVE / STALLED / REPLAYING).
 
 ## Index and retrieval (Daniel)
 
