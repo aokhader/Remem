@@ -4,7 +4,7 @@ File owners: `eval/ground_truth.csv` Aziz · `eval/test_set.csv` Varick · `eval
 
 ## The recorded day (Aziz, 3:15–3:45; spec → Data and decision rules)
 
-- 20–30 min, camera iPhone on the forehead, at the venue, in the **iPhone Camera app** (Settings → Camera → Formats → **Most Compatible** = H.264).
+- **10 min**, camera iPhone on the forehead, at the venue, in the **iPhone Camera app** at **720p HD at 30 fps** (Settings → Camera → Record Video) and **Most Compatible** = H.264 (Settings → Camera → Formats). 720p/30 is the most Meta's toolkit streams from Ray-Ban Meta glasses (spec → Why a phone is an honest stand-in), so the footage is no sharper than the glasses' would be (decision 16:40). Replay samples it at 3 fps → ~1,800 frames.
 - 8 distinct props, each placed on camera and logged: **keys (bright keychain), sunglasses, water bottle, wallet, earbuds case, charger, notebook, mug**.
 - Move **three** of them once mid-recording; log the new spot and time.
 - Linger ≥ 1 min at 4 landmarks (one is the whiteboard) for the 4 recall queries (R13); log start + end. (PROPOSED)

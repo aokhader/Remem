@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | wip | 15:47 every endpoint curled on stub; pushed to main; LICENSE still missing |
 | 1 | 3:15 | Aziz: Safari camera preview over the tunnel on venue Wi-Fi + one JPEG on disk · Daniel: one frame embedded on GPU < 0.5 s, "a photo of keys" ranks the keys photo 1st of 3 · Varick: ask page on 2nd iPhone sends a question, shows stub card from `GET /ask` · All: repo, LICENSE, README skeleton pushed, every stub live · PROPOSED items signed off | wip | 16:02 Aziz part passed: camera iPhone → tunnel → frames on disk (29 frames, lag 0.1 s) |
-| S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | todo | |
+| S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | wip | 17:05 `daily.mp4` (2:21, 832×464, walk across campus) + `whiteboard.mp4` (0:14) in `data/videos/`; `ground_truth.csv` logs wallet + backpack, door ×2, footbridge, coffee kiosk, lab, whiteboard. **No keys or other props on camera** → "where are my keys" can't be checked on replay. 16:20 only a 4.5 s wallet test clip |
 | 2 | 4:45 | Replayed day answers "where are my keys" correctly end to end. **No → cut R10, R11, R13 + R12 except its counter** | todo | |
 | — | 5:15 | z_min / z_act set from the 40-query test set | todo | |
 | 3 | 6:00 | Code freeze; then backup video 6:00–6:10, submit 6:10–6:15 (closes 6:30) | todo | |
@@ -18,7 +18,7 @@
 | Time | Aziz | Daniel | Varick |
 |---|---|---|---|
 | 2:45–3:15 | S0 skeleton (≤ 15 min), camera page + tunnel spike | EG2 embed spike; query-text A/B if time | Ask page + stub card on the 2nd iPhone |
-| 3:15–3:45 | **Record the demo day** (20–30 min, 8 props, ground_truth.csv) | Real index: add, z-rank, visit merge, `decide()` + tests | `extract()` regex + real `/ask` on stub index; draft `test_set.csv` |
+| 3:15–3:45 | **Record the demo day** (10 min at 720p, 8 props, ground_truth.csv) | Real index: add, z-rank, visit merge, `decide()` + tests | `extract()` regex + real `/ask` on stub index; draft `test_set.csv` |
 | 3:45–4:45 | Ingest queue + replay (R5) + minimal dashboard counter | Index the day; `run_testset.py` | Answer card + bands live; fill test windows |
 | 4:45–5:15 | **Everyone: 40-query test set → z_min, z_act** | runs the sweep | |
 | 5:15–5:45 | R12 full dashboard; R15 only if rows 1–4 pass twice | R4 dedupe; R13 only if rows pass twice | R10, R11; R8/R14 only if rows 1–4 pass twice |
@@ -44,18 +44,18 @@
 
 | ID | Requirement (short) | Owner | Priority | Status | Notes |
 |---|---|---|---|---|---|
-| R1 | Camera page: rear camera, POST 640 px JPEG/s over HTTPS | Aziz | Must | done | 16:02 iPhone over tunnel: 1.00 s median gap, 640×853 portrait, ~65 KB; leaving Safari pauses frames (20 s gap) and they resume on return with no tap; screen lock unverified |
+| R1 | Camera page: rear camera, POST 640 px JPEG 3×/s over HTTPS | Aziz | Must | wip | 16:40 switched to 3 fps (333 ms tick); not re-checked on the iPhone over the tunnel yet: one POST in flight, so round trips > 333 ms lower the rate. 16:02 at 1 fps, iPhone over tunnel: 1.00 s median gap, 640×853 portrait, ~65 KB; leaving Safari pauses frames (20 s gap) and they resume on return with no tap; screen lock unverified |
 | R2 | Save JPEG to disk + SQLite row | Aziz | Must | done | 16:02 tunnel frames in `~/remem-data/spike`; restart keeps ids |
 | R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | wip | 16:01: backend implemented; 60 repeated-photo frames persisted in 7.79 s (7.70 fps), bf16; WSL/live recording validation pending |
 | R4 | Skip near-duplicate frames | Daniel | Should | done | 16:44: inclusive last-kept cosine dedupe; persistent dup_of/no vector; restart restores anchor. 126 checks + ruff pass; offline bf16 GPU fixture: 2 kept / 3 dup / 0 failed, 2.67 s for 5 frames (diagnostic only) |
-| R5 | Replay MP4 at 1 fps through the same pipeline | Aziz | Must | stub | 15:47 `POST /replay` → failed "not implemented" |
+| R5 | Replay MP4 at 3 fps through the same pipeline | Aziz | Must | done | 16:40 now 3 fps: synthetic 20 s video → 60/60 frames, 0.333 s apart, 0 dropped. 16:16 ffmpeg pipe, blocking put: synthetic 20 s rotated 1080p video → 20/20 frames, 0 dropped (queue max 2), ts 1 s apart from `start_clock`, 640×1138 portrait; 400 bad input, 409 while running. Real `day.mp4` not run yet |
 | R6 | Ask page + object regex | Varick | Must | wip | 15:41 built; 61 extract tests pass; checked in browser on stub index. Not yet on the iPhone over the tunnel |
 | R7 | Query embed, robust z, visits, bands | Daniel | Must | wip | 16:12: decision table and evaluator implemented; 117 combined checks pass; real-day accuracy/threshold tuning pending |
 | R8 | Gemma 4 E4B double-check + spot line | Varick | Could | stub | 15:41 adapter + `none` backend only; real backends only after rows 1–4 pass twice |
 | R9 | Answer card (frame, N min ago, clock, band / "I haven't seen") | Varick | Must | wip | 15:41 `/ask` → act/ask/none/error correct on stub index; card.js ready for the dashboard |
 | R10 | Push-to-talk, local speech model | Varick | Should | wip | 15:50 hold-to-talk + `POST /ask/voice` built; tested with whisper-tiny on Mac CPU (~0.3 s/clip). Not yet on an iPhone or with whisper-small on the GPU |
 | R11 | Sighting timeline | Varick | Should | wip | 15:41 in card.js ("Show older sightings"); needs real multi-visit hits to verify |
-| R12 | Projector dashboard | Aziz | Should | stub | counter needed for row 1; 15:47 placeholder page, `/status` real |
+| R12 | Projector dashboard | Aziz | Should | wip | 16:16 counter + indexed, LIVE/STALLED/REPLAYING word + lag, last frame, queue/dropped/embed p50, replay progress bar, latest answer card (card.js); checked in browser during a replay. Not yet on the projector at 1080p |
 | R13 | Moment recall | Daniel | Could | todo | cut if gate 2 fails |
 | R14 | Read answer aloud | Varick | Could | todo | |
 | R15 | Blur faces before save | Aziz | Could | todo | |
@@ -83,9 +83,9 @@
 
 ## Aziz — capture, transport, ingest
 
-- **Now:** 16:02 R1 + R2 done: camera iPhone streams over the tunnel into the WSL server (`aziz/capture`)
-- **Next:** record the day + `ground_truth.csv` (S1, late) → queue + R5 replay + dashboard counter
-- **Blocked:** LICENSE has to be added on github.com (Apache-2.0 template), not typed
+- **Now:** 17:05 merged main (R4) into `aziz/capture` and pushed; stub smoke after merge OK (frames → index → keys act, passport none). `ground_truth.csv` logged from contact sheets of `daily.mp4` (start 16:30:00) + `whiteboard.mp4` (16:35:00); clocks chosen, files carry no creation time. Demo laptop has no torch/sentence-transformers/EG2 weights anywhere yet
+- **Next:** WSL clone `~/remem` (branch `aziz/capture` until it's on main) + model libs in `~/.venvs/remem` + EG2 download → replay wallet.mov, daily.mp4, whiteboard.mp4 in that order into `data/replay-day1` → ask wallet/backpack/passport → PR `aziz/capture` → main (main still has the R5 stub)
+- **Blocked:** keys on video for gate 2's exact query (record a ~30 s 720p clip of keys on a table, or rely on the live stream from 5:30). LICENSE has to be added on github.com (Apache-2.0 template), not typed
 
 ## Daniel — index and retrieval
 

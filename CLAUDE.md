@@ -1,6 +1,6 @@
 # Remem — Claude Code project memory
 
-**Pitch.** Remem answers "Where are my keys?" with the last frame your glasses saw them in: a forehead-worn iPhone streams 1 frame/s to a laptop, where EmbeddingGemma 2 indexes every frame. A second iPhone asks the question and gets back the newest matching frame, "N min ago" and the clock time, with every frame stored and searched only on the laptop.
+**Pitch.** Remem answers "Where are my keys?" with the last frame your glasses saw them in: a forehead-worn iPhone streams 3 frames/s to a laptop, where EmbeddingGemma 2 indexes every frame. A second iPhone asks the question and gets back the newest matching frame, "N min ago" and the clock time, with every frame stored and searched only on the laptop.
 
 Hack Day: Sun Oct 25 2026, DS3 @ UC San Diego. Team: Aziz (capture), Daniel (index), Varick (answer).
 

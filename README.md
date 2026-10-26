@@ -1,6 +1,6 @@
 # Remem
 
-**"Where are my keys?"** Remem answers with the last frame your glasses saw them in. A forehead-worn iPhone streams 1 frame/s to a laptop, where EmbeddingGemma 2 indexes every frame. A second iPhone asks the question and gets back the newest matching frame, "N min ago" and the clock time, with every frame stored and searched only on the laptop.
+**"Where are my keys?"** Remem answers with the last frame your glasses saw them in. A forehead-worn iPhone streams 3 frames/s to a laptop, where EmbeddingGemma 2 indexes every frame. A second iPhone asks the question and gets back the newest matching frame, "N min ago" and the clock time, with every frame stored and searched only on the laptop.
 
 Built at DS3 Hack Day, UC San Diego, Oct 25 2026 by Aziz (capture), Daniel (index) and Varick (answer).
 

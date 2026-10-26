@@ -1,5 +1,101 @@
 <!doctype html>
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Remem · dashboard</title>
-<p>Dashboard placeholder (S0). R12 replaces this; live numbers are at <a href="/status">/status</a>.</p>
+<link rel="stylesheet" href="/static/card.css">
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 32px; font: 28px/1.35 system-ui, sans-serif; background: #111; color: #fff; }
+  main { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 40px; align-items: start; }
+  h2 { margin: 0 0 12px; font-size: 24px; font-weight: 600; color: #bbb; text-transform: uppercase; letter-spacing: .06em; }
+  #count { font-size: 96px; font-weight: 800; line-height: 1; font-variant-numeric: tabular-nums; }
+  #mode { margin: 24px 0 8px; font-size: 40px; font-weight: 800; }
+  .dot { display: inline-block; width: .7em; height: .7em; margin-right: .3em; border-radius: 50%; background: #4A4A4A; }
+  .streaming .dot { background: #1B7F3B; }
+  .stalled .dot, .down .dot { background: #B3261E; }
+  .replaying .dot { background: #B26A00; }
+  .small { font-size: 24px; color: #ccc; }
+  progress { width: 100%; height: 24px; }
+  #frame { width: 100%; max-height: 80vh; object-fit: contain; border-radius: 8px; background: #222; }
+  #card { font-size: 28px; }
+  [hidden] { display: none !important; }
+</style>
+<main>
+  <section>
+    <h2>Frames seen</h2>
+    <div id="count">0</div>
+    <p class="small"><span id="indexed">0</span> indexed</p>
+    <div id="mode"><span class="dot"></span><span id="word">CONNECTING</span></div>
+    <p class="small">queue <span id="queue">0</span> · dropped <span id="dropped">0</span> · embed p50 <span id="embed">–</span></p>
+    <div id="replay" hidden>
+      <p class="small" id="replay-text"></p>
+      <progress id="replay-bar"></progress>
+    </div>
+  </section>
+  <section>
+    <h2>Last frame</h2>
+    <img id="frame" alt="Last frame from the camera" hidden>
+    <p id="no-frame" class="small">No frame yet</p>
+  </section>
+  <section>
+    <h2>Latest answer</h2>
+    <div id="card"><p class="small">No question yet</p></div>
+  </section>
+</main>
+<script type="module">
+// R12 (ui.md → Dashboard): poll /status and /ask/latest every 1 s; mode is always a word + a dot, never color alone.
+import { renderCard } from "/static/card.js";
+
+const $ = (id) => document.getElementById(id);
+let lastFrameId = null, lastAsked = null;
+
+const fmtLag = (s) => (s < 60 ? `${s.toFixed(1)} s` : `${Math.round(s / 60)} min`);
+
+function setMode(cls, word) {
+  $("mode").className = cls;
+  $("word").textContent = word;
+}
+
+function showStatus(s) {
+  $("count").textContent = s.frames_received.toLocaleString();
+  $("indexed").textContent = s.index.frames_indexed.toLocaleString();
+  $("queue").textContent = s.queue_depth;
+  $("dropped").textContent = s.frames_dropped;
+  $("embed").textContent = s.index.embed_ms_p50 == null ? "–" : `${Math.round(s.index.embed_ms_p50)} ms`;
+  const words = { idle: "WAITING FOR FRAMES", streaming: "LIVE", stalled: "STALLED", replaying: "REPLAYING" };
+  const lag = s.mode === "streaming" || s.mode === "stalled" ? ` ${fmtLag(s.ingest_lag_s)}` : "";
+  setMode(s.mode, words[s.mode] + lag);
+
+  if (s.last_frame_id !== lastFrameId && s.last_frame_id != null) {
+    lastFrameId = s.last_frame_id;
+    $("frame").src = `/frames/${lastFrameId}.jpg`;
+    $("frame").hidden = false;
+    $("no-frame").hidden = true;
+  }
+
+  const r = s.replay;
+  $("replay").hidden = !r;
+  if (r) {
+    $("replay-text").textContent = `Replay ${r.video}: ${r.frames_done} / ${r.frames_total ?? "?"} · ${r.state}`
+      + (r.error ? ` · ${r.error}` : "");
+    $("replay-bar").max = r.frames_total || 1;
+    $("replay-bar").value = r.frames_done;
+  }
+}
+
+async function poll() {
+  try {
+    showStatus(await (await fetch("/status")).json());
+    const answer = await (await fetch("/ask/latest")).json();
+    if (answer && answer.asked_ts !== lastAsked) {
+      lastAsked = answer.asked_ts;
+      renderCard($("card"), answer);
+    }
+  } catch {
+    setMode("down", "SERVER DOWN");
+  }
+  setTimeout(poll, 1000);
+}
+poll();
+</script>

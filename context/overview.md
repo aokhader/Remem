@@ -27,7 +27,7 @@ Link: https://shaneco.com/theloupe/articles-and-news/stuff-each-state-loses-the-
 
 | # | Goal | Demo row | Reqs |
 |---|---|---|---|
-| G1 | Phone streams 1 frame/s; dashboard frame counter climbs | 1 | R1, R2, R12 (counter) |
+| G1 | Phone streams 3 frames/s; dashboard frame counter climbs | 1 | R1, R2, R12 (counter) |
 | G2 | "Where are my keys?" → newest frame with keys + "N min ago" in < 5 s | 2 | R3, R6, R7, R9 |
 | G3 | Moving an object changes the answer within ~10 s | 3 | R3, R7 |
 | G4 | Never-seen object → "I haven't seen your X", no frame | 4 | R7, R9 |
@@ -92,5 +92,5 @@ Link: https://shaneco.com/theloupe/articles-and-news/stuff-each-state-loses-the-
 | z_min | Lowest z that counts as a candidate. Starts at 3; set from the test set 4:45–5:15 |
 | z_act | z at/above which the newest candidate is Act. Starts at 5; set from the test set |
 | Band | Act ("Your keys: seen…"), Ask ("Might be these…"), None ("I haven't seen your X") |
-| Replay mode | R5: feeds a recorded MP4 at 1 frame per second of video straight into ingest, skipping phone + tunnel |
+| Replay mode | R5: feeds a recorded MP4 at 3 frames per second of video straight into ingest, skipping phone + tunnel |
 | Stub | A slice's placeholder that returns exactly what `contracts.md` says, so others build against it |

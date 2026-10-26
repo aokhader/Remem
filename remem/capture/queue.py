@@ -19,12 +19,15 @@ _stop = threading.Event()
 _worker: threading.Thread | None = None
 
 
-def put(rec: FrameRecord) -> None:
+def put(rec: FrameRecord, block: bool = False) -> None:
+    """Live: drop the oldest queued frame when full. Replay (block=True): wait for room, never drop."""
     with _cv:
-        if len(_q) >= config.INGEST_QUEUE_MAX:
+        if block:
+            _cv.wait_for(lambda: len(_q) < config.INGEST_QUEUE_MAX)
+        elif len(_q) >= config.INGEST_QUEUE_MAX:
             store.mark_dropped(_q.popleft().id)
         _q.append(rec)
-        _cv.notify()
+        _cv.notify_all()  # all: the worker and a blocked replay put share this condition
 
 
 def depth() -> int:
@@ -36,6 +39,7 @@ def _run() -> None:
         with _cv:
             _cv.wait_for(lambda: _q or _stop.is_set())
             batch = [_q.popleft() for _ in range(min(len(_q), config.EMBED_BATCH))]
+            _cv.notify_all()  # wake a replay put waiting for room
         if batch:
             try:
                 index.add(batch)

@@ -1,12 +1,12 @@
 # Slice — Aziz: capture, transport, ingest
 
-**Mission:** get 1 frame/s from the forehead iPhone (or the recorded day) onto the laptop's disk and into the index, and show the room it's working.
+**Mission:** get 3 frames/s from the forehead iPhone (or the recorded day) onto the laptop's disk and into the index, and show the room it's working.
 
 | ID | What | Priority | Demo row |
 |---|---|---|---|
-| R1 | Camera page: rear camera, 640 px JPEG POST every 1000 ms over HTTPS | Must | 1 |
+| R1 | Camera page: rear camera, 640 px JPEG POST every 333 ms (3 fps) over HTTPS | Must | 1 |
 | R2 | Save JPEG to disk + `frames` row | Must | 1–4 |
-| R5 | Replay MP4 at 1 fps through the same ingest | Must | gate 2, test set, fallback |
+| R5 | Replay MP4 at 3 fps through the same ingest | Must | gate 2, test set, fallback |
 | R12 | Projector dashboard (counter, last frame, ingest lag, latest card) | Should — **counter needed for row 1** | 1 |
 | R15 | Blur faces before save (PROPOSED: OpenCV Haar cascade, new dep → ask) | Could | — |
 | — | S0 skeleton · `ground_truth.csv` + recorded day · gates table · submission | — | 6 |
