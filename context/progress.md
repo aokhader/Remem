@@ -44,7 +44,7 @@
 
 | ID | Requirement (short) | Owner | Priority | Status | Notes |
 |---|---|---|---|---|---|
-| R1 | Camera page: rear camera, POST 640 px JPEG 3×/s over HTTPS | Aziz | Must | wip | 16:40 switched to 3 fps (333 ms tick); not re-checked on the iPhone over the tunnel yet: one POST in flight, so round trips > 333 ms lower the rate. 16:02 at 1 fps, iPhone over tunnel: 1.00 s median gap, 640×853 portrait, ~65 KB; leaving Safari pauses frames (20 s gap) and they resume on return with no tap; screen lock unverified |
+| R1 | Camera page: rear camera, POST 640 px JPEG 3×/s over HTTPS | Aziz | Must | wip | 17:47 trial 5 fps (200 ms tick) on the live page only, for shaky frames; rate over the tunnel not measured yet. 16:40 switched to 3 fps (333 ms tick); not re-checked on the iPhone over the tunnel yet: one POST in flight, so round trips > 333 ms lower the rate. 16:02 at 1 fps, iPhone over tunnel: 1.00 s median gap, 640×853 portrait, ~65 KB; leaving Safari pauses frames (20 s gap) and they resume on return with no tap; screen lock unverified |
 | R2 | Save JPEG to disk + SQLite row | Aziz | Must | done | 16:02 tunnel frames in `~/remem-data/spike`; restart keeps ids |
 | R3 | EG2 frame embed, 768-d, keeps up at 1 fps | Daniel | Must | wip | 16:01: backend implemented; 60 repeated-photo frames persisted in 7.79 s (7.70 fps), bf16; WSL/live recording validation pending |
 | R4 | Skip near-duplicate frames | Daniel | Should | done | 16:44: inclusive last-kept cosine dedupe; persistent dup_of/no vector; restart restores anchor. 126 checks + ruff pass; offline bf16 GPU fixture: 2 kept / 3 dup / 0 failed, 2.67 s for 5 frames (diagnostic only) |

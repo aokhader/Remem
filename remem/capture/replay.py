@@ -19,7 +19,7 @@ from remem import config
 from remem.capture import queue, store
 from remem.contracts import Frame, ReplayJob
 
-FPS = 3  # same rate as camera.html's TICK_MS (decisions.md 16:40)
+FPS = 3  # decisions.md 16:40; camera.html is on a 5 fps trial (17:47), recorded days stay at 3
 log = logging.getLogger(__name__)
 _latest: ReplayJob | None = None
 _lock = threading.Lock()
