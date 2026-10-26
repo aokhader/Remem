@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Remem · memories</title>
+<style>
+  :root { color-scheme: dark; }
+  body { margin: 0; padding: 16px; font: 18px/1.4 system-ui, sans-serif; background: #111; color: #fff; text-align: center; }
+  label { display: block; margin: 25vh auto 0; max-width: 320px; padding: 24px 32px; font: 600 24px system-ui, sans-serif; border-radius: 12px; background: #fff; color: #111; cursor: pointer; }
+  input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  input:focus-visible + label { outline: 3px solid #8ab4f8; outline-offset: 3px; }
+  #error { color: #ffb4ab; font-size: 20px; }
+  a { color: #8ab4f8; font-size: 22px; }
+  [hidden] { display: none !important; }
+</style>
+<input id="pick" type="file" accept="image/*" multiple>
+<label for="pick">Add photos from your iPhone</label>
+<p id="state" role="status" aria-live="polite">Photos are sent to the laptop and searched there, nowhere else.</p>
+<p id="error" hidden></p>
+<p><a href="/ask">Ask about them →</a></p>
+<script type="module">
+// Memories: camera-roll photos → POST /memories one at a time; the laptop dates them from EXIF and indexes them.
+const $ = (id) => document.getElementById(id);
+
+$("pick").addEventListener("change", async (e) => {
+  const files = [...e.target.files];
+  let done = 0, failed = 0;
+  $("error").hidden = true;
+  for (const f of files) {
+    $("state").textContent = `Sending ${done + failed + 1} of ${files.length}…`;
+    try {
+      const r = await fetch(`/memories?ts=${f.lastModified}`, { method: "POST", headers: { "Content-Type": "image/jpeg" }, body: f });
+      if (!r.ok) throw new Error(`${f.name}: ${r.status} ${(await r.json().catch(() => ({}))).detail ?? ""}`);
+      done++;
+    } catch (err) {
+      failed++;
+      $("error").textContent = String(err.message ?? err);
+      $("error").hidden = false;
+    }
+  }
+  $("state").textContent = `Added ${done} photo${done === 1 ? "" : "s"}${failed ? ` · ${failed} failed` : ""}.`;
+  e.target.value = "";  // picking the same photos again re-sends them
+});
+</script>
