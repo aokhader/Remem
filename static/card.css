@@ -143,3 +143,9 @@
 .remem-strip__img { flex: 0 0 8em; width: 8em; scroll-snap-align: start; }
 .remem-thumb__label { display: block; padding-top: 0.3em; font-size: 0.8em; color: var(--remem-muted); }
 .remem-thumb--selected .remem-thumb__img { outline: 3px solid var(--remem-band); outline-offset: 2px; }
+
+/* Top 5 matches under the big frame: tap one to swap it in */
+.remem-top { padding-inline: 1em; scroll-padding-inline: 1em; }
+.remem-top .remem-thumb { flex-basis: 6.5em; }
+.remem-top button { all: unset; display: block; width: 100%; cursor: pointer; }
+.remem-top button:focus-visible { outline: 3px solid var(--remem-ink); outline-offset: 2px; border-radius: 0.5em; }

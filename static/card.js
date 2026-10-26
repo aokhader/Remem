@@ -86,6 +86,34 @@ function sightingTimeline(answer) {
     thumbs);
 }
 
+/** Top 5 sightings by z (same order as score within one query); tapping one swaps the big frame. */
+function topMatches(answer, card) {
+  const ranked = [...answer.sightings].sort((a, b) => b.z - a.z).slice(0, 5);
+  // Keep the decided frame reachable so the user can always switch back to it.
+  const top = ranked.some((h) => h.frame_id === answer.hit.frame_id) ? ranked : [answer.hit, ...ranked];
+  const list = el("ol", { class: "remem-thumbs remem-top", "aria-label": "Most similar frames" });
+  top.forEach((hit) => {
+    const shown = hit.frame_id === answer.hit.frame_id;
+    const item = el("li", { class: shown ? "remem-thumb remem-thumb--selected" : "remem-thumb" },
+      el("button", {
+        type: "button",
+        "aria-label": `Show frame from ${formatClock(hit.ts)}, ${formatAgo(answer.asked_ts - hit.ts)}`,
+        onclick: () => {
+          // Query by class: frameImg may have swapped the img for a "frame unavailable" div.
+          card.querySelector(".remem-card__frame").replaceWith(
+            frameImg(frameUrl(hit.frame_id), `${answer.object} at ${formatClock(hit.ts)}`, "remem-card__frame"));
+          card.querySelector(".remem-card__meta").textContent = `${formatAgo(answer.asked_ts - hit.ts)} · ${formatClock(hit.ts)}`;
+          list.querySelectorAll(".remem-thumb--selected").forEach((t) => t.classList.remove("remem-thumb--selected"));
+          item.classList.add("remem-thumb--selected");
+        },
+      },
+      frameImg(frameUrl(hit.frame_id), "", "remem-thumb__img"),
+      el("span", { class: "remem-thumb__label" }, `${shown ? "Answer" : `#${ranked.indexOf(hit) + 1}`} · ${formatClock(hit.ts)}`)));
+    list.append(item);
+  });
+  return list;
+}
+
 /** R13: newest stretch as a strip of 3–5 frames; older stretches listed as text. */
 function recallStrip(answer) {
   const [newest, ...older] = answer.moments;
@@ -114,7 +142,7 @@ export function buildCard(answer) {
       frameImg(answer.frame_url, `Newest frame showing ${answer.object}`, "remem-card__frame"),
       el("p", { class: "remem-card__meta" }, `${formatAgo(answer.ago_s)} · ${formatClock(answer.hit.ts)}`));
     if (answer.spot) card.append(el("p", { class: "remem-card__spot" }, `\u{1F4CD} ${answer.spot}`));
-    if (answer.sightings?.length > 1) card.append(sightingTimeline(answer));
+    if (answer.sightings?.length > 1) card.append(topMatches(answer, card), sightingTimeline(answer));
   }
   return card;
 }
