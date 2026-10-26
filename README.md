@@ -59,7 +59,7 @@ Three ways frames get in, all into the same JPEG-on-disk + SQLite store and one 
 
 ## Index and retrieval (Daniel)
 
-TODO
+EmbeddingGemma2 turns every frame and question into a normalized 768-dimensional embedding stored in SQLite. Every user query triggers a search over the frame embeddings, retrieving the top k frames with cosine similarities at least 3 normal standard deviations above the median similarity. Nearby matching frames are merged into visits and the system returns the newest qualifying sighting. Near-duplicate frames that are next to each-other are detected and thrown away, reducing vector storage and search work across batches and restarts while preserving capture timestamps.
 
 ## Ask page and answer card (Varick)
 
