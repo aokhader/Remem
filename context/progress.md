@@ -8,7 +8,7 @@
 |---|---|---|---|---|
 | S0 | 2:45 (or earlier) | Skeleton on main: layout, `contracts.py`, `config.py`, every stub, fixtures, LICENSE, README skeleton | wip | 15:47 every endpoint curled on stub; pushed to main; LICENSE still missing |
 | 1 | 3:15 | Aziz: Safari camera preview over the tunnel on venue Wi-Fi + one JPEG on disk · Daniel: one frame embedded on GPU < 0.5 s, "a photo of keys" ranks the keys photo 1st of 3 · Varick: ask page on 2nd iPhone sends a question, shows stub card from `GET /ask` · All: repo, LICENSE, README skeleton pushed, every stub live · PROPOSED items signed off | wip | 16:02 Aziz part passed: camera iPhone → tunnel → frames on disk (29 frames, lag 0.1 s) |
-| S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | wip | 16:20 only a 4.5 s wallet test clip (`wallet.mp4`, 4 frames): replays fine, ground truth v0 written; the 10-min 720p day with 8 props is not recorded |
+| S1 | 3:45 | `eval/ground_truth.csv` pushed; `day.mp4` in `data/videos/` on the demo laptop | wip | 17:05 `daily.mp4` (2:21, 832×464, walk across campus) + `whiteboard.mp4` (0:14) in `data/videos/`; `ground_truth.csv` logs wallet + backpack, door ×2, footbridge, coffee kiosk, lab, whiteboard. **No keys or other props on camera** → "where are my keys" can't be checked on replay. 16:20 only a 4.5 s wallet test clip |
 | 2 | 4:45 | Replayed day answers "where are my keys" correctly end to end. **No → cut R10, R11, R13 + R12 except its counter** | todo | |
 | — | 5:15 | z_min / z_act set from the 40-query test set | todo | |
 | 3 | 6:00 | Code freeze; then backup video 6:00–6:10, submit 6:10–6:15 (closes 6:30) | todo | |
@@ -83,9 +83,9 @@
 
 ## Aziz — capture, transport, ingest
 
-- **Now:** 16:40 capture at 3 fps (camera page + replay); recorded day = 10 min at 720p/30 (glasses quality). R5 + row-1 dashboard done (`aziz/capture`); `ground_truth.csv` v0 covers the wallet test clip only
-- **Next:** re-check the camera page at 3 fps over the tunnel → record the 10-min 720p day (8 props, 3 moves, 4 landmarks), send the original file (AirDrop/USB, not a messaging app) so the start time comes from metadata → contact sheets → full `ground_truth.csv` → replay into `replay-day1` for gate 2
-- **Blocked:** full recorded day (gate 2 needs keys on video; z tuning needs ≥ 30 frames). LICENSE has to be added on github.com (Apache-2.0 template), not typed
+- **Now:** 17:05 merged main (R4) into `aziz/capture` and pushed; stub smoke after merge OK (frames → index → keys act, passport none). `ground_truth.csv` logged from contact sheets of `daily.mp4` (start 16:30:00) + `whiteboard.mp4` (16:35:00); clocks chosen, files carry no creation time. Demo laptop has no torch/sentence-transformers/EG2 weights anywhere yet
+- **Next:** WSL clone `~/remem` (branch `aziz/capture` until it's on main) + model libs in `~/.venvs/remem` + EG2 download → replay wallet.mov, daily.mp4, whiteboard.mp4 in that order into `data/replay-day1` → ask wallet/backpack/passport → PR `aziz/capture` → main (main still has the R5 stub)
+- **Blocked:** keys on video for gate 2's exact query (record a ~30 s 720p clip of keys on a table, or rely on the live stream from 5:30). LICENSE has to be added on github.com (Apache-2.0 template), not typed
 
 ## Daniel — index and retrieval
 
