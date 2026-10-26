@@ -83,7 +83,8 @@
 
 ## Aziz — capture, transport, ingest
 
-- **Now:** 17:05 merged main (R4) into `aziz/capture` and pushed; stub smoke after merge OK (frames → index → keys act, passport none). `ground_truth.csv` logged from contact sheets of `daily.mp4` (start 16:30:00) + `whiteboard.mp4` (16:35:00); clocks chosen, files carry no creation time. Demo laptop has no torch/sentence-transformers/EG2 weights anywhere yet
+- **Now:** 17:55 **Memories** (not an R-row, outside rule 7): `/memories` page picks camera-roll photos → `POST /memories` → 1280 px JPEG dated by EXIF `DateTimeOriginal` (else file time) → same queue/index, so `/ask` searches photos + live frames together. Stub-mode HTTP run: 2 test photos in, "where are my keys" → act on the photo; 84 tests pass. 18:28 works on the iPhone over the tunnel (Aziz). README: State section + Aziz section. Card says "8771 h ago (6:46 AM)" for old photos: needs days + date in Varick's `format_ago`/`formatAgo`
+- 17:05 merged main (R4) into `aziz/capture` and pushed; stub smoke after merge OK (frames → index → keys act, passport none). `ground_truth.csv` logged from contact sheets of `daily.mp4` (start 16:30:00) + `whiteboard.mp4` (16:35:00); clocks chosen, files carry no creation time. Demo laptop has no torch/sentence-transformers/EG2 weights anywhere yet
 - **Next:** WSL clone `~/remem` (branch `aziz/capture` until it's on main) + model libs in `~/.venvs/remem` + EG2 download → replay wallet.mov, daily.mp4, whiteboard.mp4 in that order into `data/replay-day1` → ask wallet/backpack/passport → PR `aziz/capture` → main (main still has the R5 stub)
 - **Blocked:** keys on video for gate 2's exact query (record a ~30 s 720p clip of keys on a table, or rely on the live stream from 5:30). LICENSE has to be added on github.com (Apache-2.0 template), not typed
 
